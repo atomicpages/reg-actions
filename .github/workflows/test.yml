@@ -29,6 +29,7 @@ jobs:
       # supervised tree.
       - uses: bokuweb/sakimori/job@8491d10e50cf65e438bedb87cd6f4e496140ac29 # v0.34.4
         with:
+          version: v0.34.4
           policy: .github/sakimori.yml
           mode: block
           log: sakimori.log.json

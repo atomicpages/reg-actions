@@ -26,6 +26,7 @@ jobs:
       # randomiser and the `./dist` action under test.
       - uses: bokuweb/sakimori/job@8491d10e50cf65e438bedb87cd6f4e496140ac29 # v0.34.4
         with:
+          version: v0.34.4
           policy: .github/sakimori.yml
           mode: block
           log: sakimori.log.json
@@ -53,7 +54,7 @@ jobs:
       - if: always()
         uses: bokuweb/sakimori/job/stop@8491d10e50cf65e438bedb87cd6f4e496140ac29 # v0.34.4
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0 # v7.0.1
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: sakimori-target-hash-report
