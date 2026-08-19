@@ -1,0 +1,60 @@
+name: Update major release tag
+description: Move a GitHub Action major tag to a released commit
+
+inputs:
+  github-token:
+    description: Token with permission to update repository tags
+    required: true
+  tag:
+    description: Major tag to create or move, such as v4
+    required: true
+  sha:
+    description: Released commit SHA
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Create or move major tag
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        MAJOR_TAG: ${{ inputs.tag }}
+        RELEASE_SHA: ${{ inputs.sha }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const tag = process.env.MAJOR_TAG;
+          const sha = process.env.RELEASE_SHA;
+
+          if (!/^v[1-9][0-9]*$/.test(tag)) {
+            core.setFailed(`Refusing invalid major tag: ${tag}`);
+            return;
+          }
+          if (!/^[0-9a-f]{40}$/.test(sha)) {
+            core.setFailed(`Refusing invalid release SHA: ${sha}`);
+            return;
+          }
+
+          const ref = `tags/${tag}`;
+          try {
+            await github.rest.git.getRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref,
+            });
+            await github.rest.git.updateRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref,
+              sha,
+              force: true,
+            });
+          } catch (error) {
+            if (error.status !== 404) throw error;
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/${ref}`,
+              sha,
+            });
+          }

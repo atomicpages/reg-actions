@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: release-main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Select release configuration
+        id: config
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          result-encoding: string
+          script: |
+            try {
+              await github.rest.git.getRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: "tags/v4.0.0",
+              });
+              return "release-please-config.json";
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              return "release-please-config.bootstrap.json";
+            }
+
+      - name: Create release pull request or release
+        id: release
+        uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          config-file: ${{ steps.config.outputs.result }}
+          manifest-file: .release-please-manifest.json
+
+      - name: Check out released commit
+        if: steps.release.outputs.release_created == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.release.outputs.sha }}
+
+      - name: Move major release tag
+        if: steps.release.outputs.release_created == 'true'
+        uses: ./.github/actions/update-major-tag
+        with:
+          github-token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          tag: v${{ steps.release.outputs.major }}
+          sha: ${{ steps.release.outputs.sha }}
