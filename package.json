@@ -20,7 +20,7 @@
     "build": "npm-run-all -p package:entry package:main package:worker -s package:wasm",
     "check:dist": "pnpm build && test -z \"$(git status --porcelain --untracked-files=all -- dist)\"",
     "typecheck": "tsc --noEmit",
-    "package:entry": "esbuild node_modules/@bokuweb/reg-cli-wasm/dist/entry.cjs --bundle --platform=node --format=esm --outfile=dist/lib/entry.cjs",
+    "package:entry": "esbuild node_modules/@bokuweb/reg-cli-wasm/dist/entry.cjs --bundle --platform=node --format=cjs --outfile=dist/lib/entry.cjs",
     "package:main": "esbuild src/main.ts --bundle --platform=node --format=cjs --outfile=dist/lib/index.cjs",
     "package:wasm": "cp node_modules/@bokuweb/reg-cli-wasm/dist/shared/reg.wasm dist/lib/reg.wasm",
     "package:worker": "esbuild node_modules/@bokuweb/reg-cli-wasm/dist/worker.cjs --bundle --platform=node --format=cjs --outfile=dist/lib/worker.cjs"

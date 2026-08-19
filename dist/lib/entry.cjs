@@ -1,13 +1,8 @@
+"use strict";
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
-  get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
-}) : x)(function(x) {
-  if (typeof require !== "undefined") return require.apply(this, arguments);
-  throw Error('Dynamic require of "' + x + '" is not supported');
-});
 var __esm = (fn, res, err) => function __init() {
   if (err) throw err[0];
   try {
@@ -16,7 +11,7 @@ var __esm = (fn, res, err) => function __init() {
     throw err = [e], e;
   }
 };
-var __commonJS = (cb, mod) => function __require2() {
+var __commonJS = (cb, mod) => function __require() {
   try {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   } catch (e) {
@@ -87,10 +82,10 @@ function validateUndefined(value, name) {
 function isPromiseLike(obj) {
   return !!(obj && (typeof obj === "object" || typeof obj === "function") && typeof obj.then === "function");
 }
-function wrapInstanceExports(exports, mapFn) {
+function wrapInstanceExports(exports2, mapFn) {
   const newExports = /* @__PURE__ */ Object.create(null);
-  Object.keys(exports).forEach((name) => {
-    const exportValue = exports[name];
+  Object.keys(exports2).forEach((name) => {
+    const exportValue = exports2[name];
     Object.defineProperty(newExports, name, {
       enumerable: true,
       value: mapFn(exportValue, name)
@@ -129,26 +124,26 @@ function tryAllocate(instance, wasm64, size, mallocName) {
   }
   return wasm64 ? { wasm64, dataPtr, start: dataPtr + 16, end: dataPtr + 16 + size } : { wasm64, dataPtr, start: dataPtr + 8, end: dataPtr + 8 + size };
 }
-function validateImports(imports) {
-  if (imports && typeof imports !== "object") {
+function validateImports(imports2) {
+  if (imports2 && typeof imports2 !== "object") {
     throw new TypeError("imports must be an object or undefined");
   }
 }
-function fetchWasm(urlOrBuffer, imports) {
+function fetchWasm(urlOrBuffer, imports2) {
   if (typeof wx !== "undefined" && typeof __wxConfig !== "undefined") {
-    return _WebAssembly.instantiate(urlOrBuffer, imports);
+    return _WebAssembly.instantiate(urlOrBuffer, imports2);
   }
-  return fetch(urlOrBuffer).then((response) => response.arrayBuffer()).then((buffer) => _WebAssembly.instantiate(buffer, imports));
+  return fetch(urlOrBuffer).then((response) => response.arrayBuffer()).then((buffer) => _WebAssembly.instantiate(buffer, imports2));
 }
-function load(wasmInput, imports) {
-  validateImports(imports);
-  imports = imports !== null && imports !== void 0 ? imports : {};
+function load(wasmInput, imports2) {
+  validateImports(imports2);
+  imports2 = imports2 !== null && imports2 !== void 0 ? imports2 : {};
   let source;
   if (wasmInput instanceof ArrayBuffer || ArrayBuffer.isView(wasmInput)) {
-    return _WebAssembly.instantiate(wasmInput, imports);
+    return _WebAssembly.instantiate(wasmInput, imports2);
   }
   if (wasmInput instanceof _WebAssembly.Module) {
-    return _WebAssembly.instantiate(wasmInput, imports).then((instance) => {
+    return _WebAssembly.instantiate(wasmInput, imports2).then((instance) => {
       return { instance, module: wasmInput };
     });
   }
@@ -159,51 +154,51 @@ function load(wasmInput, imports) {
     let responsePromise;
     try {
       responsePromise = fetch(wasmInput);
-      source = _WebAssembly.instantiateStreaming(responsePromise, imports).catch(() => {
-        return fetchWasm(wasmInput, imports);
+      source = _WebAssembly.instantiateStreaming(responsePromise, imports2).catch(() => {
+        return fetchWasm(wasmInput, imports2);
       });
     } catch (_) {
-      source = fetchWasm(wasmInput, imports);
+      source = fetchWasm(wasmInput, imports2);
     }
   } else {
-    source = fetchWasm(wasmInput, imports);
+    source = fetchWasm(wasmInput, imports2);
   }
   return source;
 }
-function asyncifyLoad(asyncify, urlOrBuffer, imports) {
-  validateImports(imports);
-  imports = imports !== null && imports !== void 0 ? imports : {};
+function asyncifyLoad(asyncify, urlOrBuffer, imports2) {
+  validateImports(imports2);
+  imports2 = imports2 !== null && imports2 !== void 0 ? imports2 : {};
   const asyncifyHelper = new Asyncify();
-  imports = asyncifyHelper.wrapImports(imports);
-  return load(urlOrBuffer, imports).then((source) => {
+  imports2 = asyncifyHelper.wrapImports(imports2);
+  return load(urlOrBuffer, imports2).then((source) => {
     var _a;
-    const memory = source.instance.exports.memory || ((_a = imports.env) === null || _a === void 0 ? void 0 : _a.memory);
+    const memory = source.instance.exports.memory || ((_a = imports2.env) === null || _a === void 0 ? void 0 : _a.memory);
     return { module: source.module, instance: asyncifyHelper.init(memory, source.instance, asyncify) };
   });
 }
-function loadSync(wasmInput, imports) {
-  validateImports(imports);
-  imports = imports !== null && imports !== void 0 ? imports : {};
-  let module;
+function loadSync(wasmInput, imports2) {
+  validateImports(imports2);
+  imports2 = imports2 !== null && imports2 !== void 0 ? imports2 : {};
+  let module2;
   if (wasmInput instanceof ArrayBuffer || ArrayBuffer.isView(wasmInput)) {
-    module = new _WebAssembly.Module(wasmInput);
+    module2 = new _WebAssembly.Module(wasmInput);
   } else if (wasmInput instanceof WebAssembly.Module) {
-    module = wasmInput;
+    module2 = wasmInput;
   } else {
     throw new TypeError("Invalid source");
   }
-  const instance = new _WebAssembly.Instance(module, imports);
-  const source = { instance, module };
+  const instance = new _WebAssembly.Instance(module2, imports2);
+  const source = { instance, module: module2 };
   return source;
 }
-function asyncifyLoadSync(asyncify, buffer, imports) {
+function asyncifyLoadSync(asyncify, buffer, imports2) {
   var _a;
-  validateImports(imports);
-  imports = imports !== null && imports !== void 0 ? imports : {};
+  validateImports(imports2);
+  imports2 = imports2 !== null && imports2 !== void 0 ? imports2 : {};
   const asyncifyHelper = new Asyncify();
-  imports = asyncifyHelper.wrapImports(imports);
-  const source = loadSync(buffer, imports);
-  const memory = source.instance.exports.memory || ((_a = imports.env) === null || _a === void 0 ? void 0 : _a.memory);
+  imports2 = asyncifyHelper.wrapImports(imports2);
+  const source = loadSync(buffer, imports2);
+  const memory = source.instance.exports.memory || ((_a = imports2.env) === null || _a === void 0 ? void 0 : _a.memory);
   return { module: source.module, instance: asyncifyHelper.init(memory, source.instance, asyncify) };
 }
 function isPosixPathSeparator(code) {
@@ -571,8 +566,8 @@ function wrapAsyncExport(f) {
   }
   return new WebAssemblyFunction({ parameters: [...WebAssemblyFunction.type(f).parameters.slice(1)], results: ["externref"] }, f, { promising: "first" });
 }
-function wrapExports(exports, needWrap) {
-  return wrapInstanceExports(exports, (exportValue, name) => {
+function wrapExports(exports2, needWrap) {
+  return wrapInstanceExports(exports2, (exportValue, name) => {
     let ignore = typeof exportValue !== "function";
     if (Array.isArray(needWrap)) {
       ignore = ignore || needWrap.indexOf(name) === -1;
@@ -599,14 +594,14 @@ function copyMemory(targets, src) {
   }
   return copied;
 }
-function getMemory(wasi) {
-  return _memory.get(wasi);
+function getMemory(wasi2) {
+  return _memory.get(wasi2);
 }
-function getFs(wasi) {
-  const fs = _fs.get(wasi);
-  if (!fs)
+function getFs(wasi2) {
+  const fs2 = _fs.get(wasi2);
+  if (!fs2)
     throw new Error("filesystem is unavailable");
-  return fs;
+  return fs2;
 }
 function handleError(err) {
   if (err instanceof WasiError) {
@@ -667,11 +662,11 @@ function syscallWrap(self, name, f) {
     return r;
   });
 }
-function resolvePathSync(fs, fileDescriptor, path, flags) {
+function resolvePathSync(fs2, fileDescriptor, path, flags) {
   let resolvedPath = resolve(fileDescriptor.realPath, path);
   if ((flags & 1) === 1) {
     try {
-      resolvedPath = fs.readlinkSync(resolvedPath);
+      resolvedPath = fs2.readlinkSync(resolvedPath);
     } catch (err) {
       if (err.code !== "EINVAL" && err.code !== "ENOENT") {
         throw err;
@@ -680,11 +675,11 @@ function resolvePathSync(fs, fileDescriptor, path, flags) {
   }
   return resolvedPath;
 }
-async function resolvePathAsync(fs, fileDescriptor, path, flags) {
+async function resolvePathAsync(fs2, fileDescriptor, path, flags) {
   let resolvedPath = resolve(fileDescriptor.realPath, path);
   if ((flags & 1) === 1) {
     try {
-      resolvedPath = await fs.promises.readlink(resolvedPath);
+      resolvedPath = await fs2.promises.readlink(resolvedPath);
     } catch (err) {
       if (err.code !== "EINVAL" && err.code !== "ENOENT") {
         throw err;
@@ -830,9 +825,9 @@ var init_wasm_util_esm_bundler = __esm({
         if (!(memory instanceof _WebAssembly.Memory)) {
           throw new TypeError("Require WebAssembly.Memory object");
         }
-        const exports = instance.exports;
+        const exports2 = instance.exports;
         for (let i = 0; i < ignoreNames.length; ++i) {
-          if (typeof exports[ignoreNames[i]] !== "function") {
+          if (typeof exports2[ignoreNames[i]] !== "function") {
             throw new TypeError("Invalid asyncify wasm");
           }
         }
@@ -858,7 +853,7 @@ var init_wasm_util_esm_bundler = __esm({
         } else {
           new Int32Array(memory.buffer, this.dataPtr).set([address.start, address.end]);
         }
-        this.exports = this.wrapExports(exports, options.wrapExports);
+        this.exports = this.wrapExports(exports2, options.wrapExports);
         const asyncifiedInstance = Object.create(_WebAssembly.Instance.prototype);
         Object.defineProperty(asyncifiedInstance, "exports", { value: this.exports });
         return asyncifiedInstance;
@@ -883,10 +878,10 @@ var init_wasm_util_esm_bundler = __esm({
           _this.value = v;
         });
       }
-      wrapImports(imports) {
+      wrapImports(imports2) {
         const importObject = {};
-        Object.keys(imports).forEach((k) => {
-          const mod = imports[k];
+        Object.keys(imports2).forEach((k) => {
+          const mod = imports2[k];
           const newModule = {};
           Object.keys(mod).forEach((name) => {
             const importValue = mod[name];
@@ -916,8 +911,8 @@ var init_wasm_util_esm_bundler = __esm({
           return ret;
         });
       }
-      wrapExports(exports, needWrap) {
-        return wrapInstanceExports(exports, (exportValue, name) => {
+      wrapExports(exports2, needWrap) {
+        return wrapInstanceExports(exports2, (exportValue, name) => {
           let ignore = ignoreNames.indexOf(name) !== -1 || typeof exportValue !== "function";
           if (Array.isArray(needWrap)) {
             ignore = ignore || needWrap.indexOf(name) === -1;
@@ -1319,7 +1314,7 @@ var init_wasm_util_esm_bundler = __esm({
     decoder = /* @__PURE__ */ new TextDecoder();
     INT64_MAX = (BigInt(1) << BigInt(63)) - BigInt(1);
     WASI$1 = class _WASI$1 {
-      constructor(args, env, fds, asyncFs, fs, asyncify) {
+      constructor(args, env, fds, asyncFs, fs2, asyncify) {
         this.args_get = syscallWrap(this, "args_get", function(argv, argv_buf) {
           argv = Number(argv);
           argv_buf = Number(argv_buf);
@@ -1327,8 +1322,8 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8, view } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const args2 = wasi.args;
+          const wasi2 = _wasi.get(this);
+          const args2 = wasi2.args;
           for (let i = 0; i < args2.length; ++i) {
             const arg = args2[i];
             view.setInt32(argv, argv_buf, true);
@@ -1346,8 +1341,8 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { view } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const args2 = wasi.args;
+          const wasi2 = _wasi.get(this);
+          const args2 = wasi2.args;
           view.setUint32(argc, args2.length, true);
           view.setUint32(argv_buf_size, encoder.encode(args2.join("\0") + "\0").length, true);
           return 0;
@@ -1359,8 +1354,8 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8, view } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const env2 = wasi.env;
+          const wasi2 = _wasi.get(this);
+          const env2 = wasi2.env;
           for (let i = 0; i < env2.length; ++i) {
             const pair = env2[i];
             view.setInt32(environ, environ_buf, true);
@@ -1378,9 +1373,9 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { view } = getMemory(this);
-          const wasi = _wasi.get(this);
-          view.setUint32(len, wasi.env.length, true);
-          view.setUint32(buflen, encoder.encode(wasi.env.join("\0") + "\0").length, true);
+          const wasi2 = _wasi.get(this);
+          view.setUint32(len, wasi2.env.length, true);
+          view.setUint32(buflen, encoder.encode(wasi2.env.join("\0") + "\0").length, true);
           return 0;
         });
         this.clock_res_get = syscallWrap(this, "clock_res_get", function(id, resolution) {
@@ -1434,8 +1429,8 @@ var init_wasm_util_esm_bundler = __esm({
           if (fdstat === 0) {
             return 28;
           }
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, BigInt(0), BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, BigInt(0), BigInt(0));
           const { view } = getMemory(this);
           view.setUint16(fdstat, fileDescriptor.type, true);
           view.setUint16(fdstat + 2, 0, true);
@@ -1447,8 +1442,8 @@ var init_wasm_util_esm_bundler = __esm({
           return 52;
         });
         this.fd_fdstat_set_rights = syscallWrap(this, "fd_fdstat_set_rights", function(fd, rightsBase, rightsInheriting) {
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, BigInt(0), BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, BigInt(0), BigInt(0));
           if ((rightsBase | fileDescriptor.rightsBase) > fileDescriptor.rightsBase) {
             return 76;
           }
@@ -1464,10 +1459,10 @@ var init_wasm_util_esm_bundler = __esm({
           if (prestat === 0) {
             return 28;
           }
-          const wasi = _wasi.get(this);
+          const wasi2 = _wasi.get(this);
           let fileDescriptor;
           try {
-            fileDescriptor = wasi.fds.get(fd, BigInt(0), BigInt(0));
+            fileDescriptor = wasi2.fds.get(fd, BigInt(0), BigInt(0));
           } catch (err) {
             if (err instanceof WasiError)
               return err.errno;
@@ -1486,8 +1481,8 @@ var init_wasm_util_esm_bundler = __esm({
           if (path === 0) {
             return 28;
           }
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, BigInt(0), BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, BigInt(0), BigInt(0));
           if (fileDescriptor.preopen !== 1)
             return 8;
           const buffer = encoder.encode(fileDescriptor.path);
@@ -1505,16 +1500,16 @@ var init_wasm_util_esm_bundler = __esm({
           }
           if (fd === 0 || fd === 1 || fd === 2)
             return 0;
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_SEEK, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_SEEK, BigInt(0));
           const r = fileDescriptor.seek(offset, whence);
           const { view } = getMemory(this);
           view.setBigUint64(newOffset, r, true);
           return 0;
         });
         this.fd_tell = syscallWrap(this, "fd_tell", function(fd, offset) {
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_TELL, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_TELL, BigInt(0));
           const pos = BigInt(fileDescriptor.pos);
           const { view } = getMemory(this);
           view.setBigUint64(Number(offset), pos, true);
@@ -1674,8 +1669,8 @@ var init_wasm_util_esm_bundler = __esm({
           args,
           env
         });
-        if (fs)
-          _fs.set(this, fs);
+        if (fs2)
+          _fs.set(this, fs2);
         const _this = this;
         function defineImport(name, syncVersion, asyncVersion, parameterType, returnType) {
           if (asyncFs) {
@@ -1689,17 +1684,17 @@ var init_wasm_util_esm_bundler = __esm({
           }
         }
         defineImport("fd_allocate", function fd_allocate(fd, offset, len) {
-          const wasi = _wasi.get(this);
-          const fs2 = getFs(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_ALLOCATE, BigInt(0));
-          const stat = fs2.fstatSync(fileDescriptor.fd, { bigint: true });
+          const wasi2 = _wasi.get(this);
+          const fs3 = getFs(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_ALLOCATE, BigInt(0));
+          const stat = fs3.fstatSync(fileDescriptor.fd, { bigint: true });
           if (stat.size < offset + len) {
-            fs2.ftruncateSync(fileDescriptor.fd, Number(offset + len));
+            fs3.ftruncateSync(fileDescriptor.fd, Number(offset + len));
           }
           return 0;
         }, async function fd_allocate(fd, offset, len) {
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_ALLOCATE, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_ALLOCATE, BigInt(0));
           const h = fileDescriptor.fd;
           const stat = await h.stat({ bigint: true });
           if (stat.size < offset + len) {
@@ -1708,28 +1703,28 @@ var init_wasm_util_esm_bundler = __esm({
           return 0;
         }, ["i32", "i64", "f64"], ["i32"]);
         defineImport("fd_close", function fd_close(fd) {
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, BigInt(0), BigInt(0));
-          const fs2 = getFs(this);
-          fs2.closeSync(fileDescriptor.fd);
-          wasi.fds.remove(fd);
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, BigInt(0), BigInt(0));
+          const fs3 = getFs(this);
+          fs3.closeSync(fileDescriptor.fd);
+          wasi2.fds.remove(fd);
           return 0;
         }, async function fd_close(fd) {
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, BigInt(0), BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, BigInt(0), BigInt(0));
           await fileDescriptor.fd.close();
-          wasi.fds.remove(fd);
+          wasi2.fds.remove(fd);
           return 0;
         }, ["i32"], ["i32"]);
         defineImport("fd_datasync", function fd_datasync(fd) {
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_DATASYNC, BigInt(0));
-          const fs2 = getFs(this);
-          fs2.fdatasyncSync(fileDescriptor.fd);
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_DATASYNC, BigInt(0));
+          const fs3 = getFs(this);
+          fs3.fdatasyncSync(fileDescriptor.fd);
           return 0;
         }, async function fd_datasync(fd) {
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_DATASYNC, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_DATASYNC, BigInt(0));
           await fileDescriptor.fd.datasync();
           return 0;
         }, ["i32"], ["i32"]);
@@ -1737,10 +1732,10 @@ var init_wasm_util_esm_bundler = __esm({
           buf = Number(buf);
           if (buf === 0)
             return 28;
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_FILESTAT_GET, BigInt(0));
-          const fs2 = getFs(this);
-          const stat = fs2.fstatSync(fileDescriptor.fd, { bigint: true });
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_FILESTAT_GET, BigInt(0));
+          const fs3 = getFs(this);
+          const stat = fs3.fstatSync(fileDescriptor.fd, { bigint: true });
           const { view } = getMemory(this);
           toFileStat(view, buf, stat);
           return 0;
@@ -1748,8 +1743,8 @@ var init_wasm_util_esm_bundler = __esm({
           buf = Number(buf);
           if (buf === 0)
             return 28;
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_FILESTAT_GET, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_FILESTAT_GET, BigInt(0));
           const h = fileDescriptor.fd;
           const stat = await h.stat({ bigint: true });
           const { view } = getMemory(this);
@@ -1757,21 +1752,21 @@ var init_wasm_util_esm_bundler = __esm({
           return 0;
         }, ["i32", "i32"], ["i32"]);
         defineImport("fd_filestat_set_size", function fd_filestat_set_size(fd, size) {
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_FILESTAT_SET_SIZE, BigInt(0));
-          const fs2 = getFs(this);
-          fs2.ftruncateSync(fileDescriptor.fd, Number(size));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_FILESTAT_SET_SIZE, BigInt(0));
+          const fs3 = getFs(this);
+          fs3.ftruncateSync(fileDescriptor.fd, Number(size));
           return 0;
         }, async function fd_filestat_set_size(fd, size) {
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_FILESTAT_SET_SIZE, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_FILESTAT_SET_SIZE, BigInt(0));
           const h = fileDescriptor.fd;
           await h.truncate(Number(size));
           return 0;
         }, ["i32", "i64"], ["i32"]);
         function fdFilestatGetTimes(fd, atim, mtim, flags) {
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_FILESTAT_SET_TIMES, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_FILESTAT_SET_TIMES, BigInt(0));
           if ((flags & 2) === 2) {
             atim = BigInt(Date.now() * 1e6);
           }
@@ -1785,8 +1780,8 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { fileDescriptor, atim: atimRes, mtim: mtimRes } = fdFilestatGetTimes.call(this, fd, atim, mtim, flags);
-          const fs2 = getFs(this);
-          fs2.futimesSync(fileDescriptor.fd, Number(atimRes), Number(mtimRes));
+          const fs3 = getFs(this);
+          fs3.futimesSync(fileDescriptor.fd, Number(atimRes), Number(mtimRes));
           return 0;
         }, async function fd_filestat_set_times(fd, atim, mtim, flags) {
           if (validateFstFlagsOrReturn(flags)) {
@@ -1804,8 +1799,8 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8, view } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_READ | WasiRights.FD_SEEK, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_READ | WasiRights.FD_SEEK, BigInt(0));
           if (!iovslen) {
             view.setUint32(size, 0, true);
             return 0;
@@ -1827,8 +1822,8 @@ var init_wasm_util_esm_bundler = __esm({
             }
           })();
           buffer._isBuffer = true;
-          const fs2 = getFs(this);
-          const bytesRead = fs2.readSync(fileDescriptor.fd, buffer, 0, buffer.length, Number(offset));
+          const fs3 = getFs(this);
+          const bytesRead = fs3.readSync(fileDescriptor.fd, buffer, 0, buffer.length, Number(offset));
           nread = buffer ? copyMemory(ioVecs, buffer.subarray(0, bytesRead)) : 0;
           view.setUint32(size, nread, true);
           return 0;
@@ -1839,8 +1834,8 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8, view } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_READ | WasiRights.FD_SEEK, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_READ | WasiRights.FD_SEEK, BigInt(0));
           if (!iovslen) {
             view.setUint32(size, 0, true);
             return 0;
@@ -1868,8 +1863,8 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8, view } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_WRITE | WasiRights.FD_SEEK, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_WRITE | WasiRights.FD_SEEK, BigInt(0));
           if (!iovslen) {
             view.setUint32(size, 0, true);
             return 0;
@@ -1880,8 +1875,8 @@ var init_wasm_util_esm_bundler = __esm({
             const bufLen = view.getUint32(offset2 + 4, true);
             return HEAPU8.subarray(buf, buf + bufLen);
           }));
-          const fs2 = getFs(this);
-          const nwritten = fs2.writeSync(fileDescriptor.fd, buffer, 0, buffer.length, Number(offset));
+          const fs3 = getFs(this);
+          const nwritten = fs3.writeSync(fileDescriptor.fd, buffer, 0, buffer.length, Number(offset));
           view.setUint32(size, nwritten, true);
           return 0;
         }, async function fd_pwrite(fd, iovs, iovslen, offset, size) {
@@ -1891,8 +1886,8 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8, view } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_WRITE | WasiRights.FD_SEEK, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_WRITE | WasiRights.FD_SEEK, BigInt(0));
           if (!iovslen) {
             view.setUint32(size, 0, true);
             return 0;
@@ -1914,8 +1909,8 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8, view } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_READ, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_READ, BigInt(0));
           if (!iovslen) {
             view.setUint32(size, 0, true);
             return 0;
@@ -1945,8 +1940,8 @@ var init_wasm_util_esm_bundler = __esm({
               }
             })();
             buffer._isBuffer = true;
-            const fs2 = getFs(this);
-            const bytesRead = fs2.readSync(fileDescriptor.fd, buffer, 0, buffer.length, Number(fileDescriptor.pos));
+            const fs3 = getFs(this);
+            const bytesRead = fs3.readSync(fileDescriptor.fd, buffer, 0, buffer.length, Number(fileDescriptor.pos));
             nread = buffer ? copyMemory(ioVecs, buffer.subarray(0, bytesRead)) : 0;
             fileDescriptor.pos += BigInt(nread);
           }
@@ -1959,8 +1954,8 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8, view } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_READ, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_READ, BigInt(0));
           if (!iovslen) {
             view.setUint32(size, 0, true);
             return 0;
@@ -1997,15 +1992,15 @@ var init_wasm_util_esm_bundler = __esm({
           bufused = Number(bufused);
           if (buf === 0 || bufused === 0)
             return 0;
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_READDIR, BigInt(0));
-          const fs2 = getFs(this);
-          const entries = fs2.readdirSync(fileDescriptor.realPath, { withFileTypes: true });
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_READDIR, BigInt(0));
+          const fs3 = getFs(this);
+          const entries = fs3.readdirSync(fileDescriptor.realPath, { withFileTypes: true });
           const { HEAPU8, view } = getMemory(this);
           let bufferUsed = 0;
           for (let i = Number(cookie); i < entries.length; i++) {
             const nameData = encoder.encode(entries[i].name);
-            const entryInfo = fs2.statSync(resolve(fileDescriptor.realPath, entries[i].name), { bigint: true });
+            const entryInfo = fs3.statSync(resolve(fileDescriptor.realPath, entries[i].name), { bigint: true });
             const entryData = new Uint8Array(24 + nameData.byteLength);
             const entryView = new DataView(entryData.buffer);
             entryView.setBigUint64(0, BigInt(i + 1), true);
@@ -2041,15 +2036,15 @@ var init_wasm_util_esm_bundler = __esm({
           bufused = Number(bufused);
           if (buf === 0 || bufused === 0)
             return 0;
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_READDIR, BigInt(0));
-          const fs2 = getFs(this);
-          const entries = await fs2.promises.readdir(fileDescriptor.realPath, { withFileTypes: true });
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_READDIR, BigInt(0));
+          const fs3 = getFs(this);
+          const entries = await fs3.promises.readdir(fileDescriptor.realPath, { withFileTypes: true });
           const { HEAPU8, view } = getMemory(this);
           let bufferUsed = 0;
           for (let i = Number(cookie); i < entries.length; i++) {
             const nameData = encoder.encode(entries[i].name);
-            const entryInfo = await fs2.promises.stat(resolve(fileDescriptor.realPath, entries[i].name), { bigint: true });
+            const entryInfo = await fs3.promises.stat(resolve(fileDescriptor.realPath, entries[i].name), { bigint: true });
             const entryData = new Uint8Array(24 + nameData.byteLength);
             const entryView = new DataView(entryData.buffer);
             entryView.setBigUint64(0, BigInt(i + 1), true);
@@ -2081,23 +2076,23 @@ var init_wasm_util_esm_bundler = __esm({
           return 0;
         }, ["i32", "i32", "i32", "i64", "i32"], ["i32"]);
         defineImport("fd_renumber", function fd_renumber(from, to) {
-          const wasi = _wasi.get(this);
-          wasi.fds.renumber(to, from);
+          const wasi2 = _wasi.get(this);
+          wasi2.fds.renumber(to, from);
           return 0;
         }, async function fd_renumber(from, to) {
-          const wasi = _wasi.get(this);
-          await wasi.fds.renumber(to, from);
+          const wasi2 = _wasi.get(this);
+          await wasi2.fds.renumber(to, from);
           return 0;
         }, ["i32", "i32"], ["i32"]);
         defineImport("fd_sync", function fd_sync(fd) {
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_SYNC, BigInt(0));
-          const fs2 = getFs(this);
-          fs2.fsyncSync(fileDescriptor.fd);
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_SYNC, BigInt(0));
+          const fs3 = getFs(this);
+          fs3.fsyncSync(fileDescriptor.fd);
           return 0;
         }, async function fd_sync(fd) {
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_SYNC, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_SYNC, BigInt(0));
           await fileDescriptor.fd.sync();
           return 0;
         }, ["i32"], ["i32"]);
@@ -2108,8 +2103,8 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8, view } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_WRITE, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_WRITE, BigInt(0));
           if (!iovslen) {
             view.setUint32(size, 0, true);
             return 0;
@@ -2124,8 +2119,8 @@ var init_wasm_util_esm_bundler = __esm({
           if (fd === 1 || fd === 2) {
             nwritten = fileDescriptor.write(buffer);
           } else {
-            const fs2 = getFs(this);
-            nwritten = fs2.writeSync(fileDescriptor.fd, buffer, 0, buffer.length, Number(fileDescriptor.pos));
+            const fs3 = getFs(this);
+            nwritten = fs3.writeSync(fileDescriptor.fd, buffer, 0, buffer.length, Number(fileDescriptor.pos));
             fileDescriptor.pos += BigInt(nwritten);
           }
           view.setUint32(size, nwritten, true);
@@ -2137,8 +2132,8 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8, view } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.FD_WRITE, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.FD_WRITE, BigInt(0));
           if (!iovslen) {
             view.setUint32(size, 0, true);
             return 0;
@@ -2166,12 +2161,12 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8 } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.PATH_CREATE_DIRECTORY, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.PATH_CREATE_DIRECTORY, BigInt(0));
           let pathString = decoder.decode(unsharedSlice(HEAPU8, path, path + path_len));
           pathString = resolve(fileDescriptor.realPath, pathString);
-          const fs2 = getFs(this);
-          fs2.mkdirSync(pathString);
+          const fs3 = getFs(this);
+          fs3.mkdirSync(pathString);
           return 0;
         }, async function path_create_directory(fd, path, path_len) {
           path = Number(path);
@@ -2180,12 +2175,12 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8 } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.PATH_CREATE_DIRECTORY, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.PATH_CREATE_DIRECTORY, BigInt(0));
           let pathString = decoder.decode(unsharedSlice(HEAPU8, path, path + path_len));
           pathString = resolve(fileDescriptor.realPath, pathString);
-          const fs2 = getFs(this);
-          await fs2.promises.mkdir(pathString);
+          const fs3 = getFs(this);
+          await fs3.promises.mkdir(pathString);
           return 0;
         }, ["i32", "i32", "i32"], ["i32"]);
         defineImport("path_filestat_get", function path_filestat_get(fd, flags, path, path_len, filestat) {
@@ -2196,16 +2191,16 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8, view } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.PATH_FILESTAT_GET, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.PATH_FILESTAT_GET, BigInt(0));
           let pathString = decoder.decode(unsharedSlice(HEAPU8, path, path + path_len));
-          const fs2 = getFs(this);
+          const fs3 = getFs(this);
           pathString = resolve(fileDescriptor.realPath, pathString);
           let stat;
           if ((flags & 1) === 1) {
-            stat = fs2.statSync(pathString, { bigint: true });
+            stat = fs3.statSync(pathString, { bigint: true });
           } else {
-            stat = fs2.lstatSync(pathString, { bigint: true });
+            stat = fs3.lstatSync(pathString, { bigint: true });
           }
           toFileStat(view, filestat, stat);
           return 0;
@@ -2217,16 +2212,16 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8, view } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.PATH_FILESTAT_GET, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.PATH_FILESTAT_GET, BigInt(0));
           let pathString = decoder.decode(unsharedSlice(HEAPU8, path, path + path_len));
-          const fs2 = getFs(this);
+          const fs3 = getFs(this);
           pathString = resolve(fileDescriptor.realPath, pathString);
           let stat;
           if ((flags & 1) === 1) {
-            stat = await fs2.promises.stat(pathString, { bigint: true });
+            stat = await fs3.promises.stat(pathString, { bigint: true });
           } else {
-            stat = await fs2.promises.lstat(pathString, { bigint: true });
+            stat = await fs3.promises.lstat(pathString, { bigint: true });
           }
           toFileStat(view, filestat, stat);
           return 0;
@@ -2237,20 +2232,20 @@ var init_wasm_util_esm_bundler = __esm({
           if (path === 0)
             return 28;
           const { HEAPU8 } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.PATH_FILESTAT_SET_TIMES, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.PATH_FILESTAT_SET_TIMES, BigInt(0));
           if (validateFstFlagsOrReturn(fst_flags)) {
             return 28;
           }
-          const fs2 = getFs(this);
-          const resolvedPath = resolvePathSync(fs2, fileDescriptor, decoder.decode(unsharedSlice(HEAPU8, path, path + path_len)), flags);
+          const fs3 = getFs(this);
+          const resolvedPath = resolvePathSync(fs3, fileDescriptor, decoder.decode(unsharedSlice(HEAPU8, path, path + path_len)), flags);
           if ((fst_flags & 2) === 2) {
             atim = BigInt(Date.now() * 1e6);
           }
           if ((fst_flags & 8) === 8) {
             mtim = BigInt(Date.now() * 1e6);
           }
-          fs2.utimesSync(resolvedPath, Number(atim), Number(mtim));
+          fs3.utimesSync(resolvedPath, Number(atim), Number(mtim));
           return 0;
         }, async function path_filestat_set_times(fd, flags, path, path_len, atim, mtim, fst_flags) {
           path = Number(path);
@@ -2258,20 +2253,20 @@ var init_wasm_util_esm_bundler = __esm({
           if (path === 0)
             return 28;
           const { HEAPU8 } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.PATH_FILESTAT_SET_TIMES, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.PATH_FILESTAT_SET_TIMES, BigInt(0));
           if (validateFstFlagsOrReturn(fst_flags)) {
             return 28;
           }
-          const fs2 = getFs(this);
-          const resolvedPath = await resolvePathAsync(fs2, fileDescriptor, decoder.decode(unsharedSlice(HEAPU8, path, path + path_len)), flags);
+          const fs3 = getFs(this);
+          const resolvedPath = await resolvePathAsync(fs3, fileDescriptor, decoder.decode(unsharedSlice(HEAPU8, path, path + path_len)), flags);
           if ((fst_flags & 2) === 2) {
             atim = BigInt(Date.now() * 1e6);
           }
           if ((fst_flags & 8) === 8) {
             mtim = BigInt(Date.now() * 1e6);
           }
-          await fs2.promises.utimes(resolvedPath, Number(atim), Number(mtim));
+          await fs3.promises.utimes(resolvedPath, Number(atim), Number(mtim));
           return 0;
         }, ["i32", "i32", "i32", "i32", "i64", "i64", "i32"], ["i32"]);
         defineImport("path_link", function path_link(old_fd, old_flags, old_path, old_path_len, new_fd, new_path, new_path_len) {
@@ -2282,20 +2277,20 @@ var init_wasm_util_esm_bundler = __esm({
           if (old_path === 0 || new_path === 0) {
             return 28;
           }
-          const wasi = _wasi.get(this);
+          const wasi2 = _wasi.get(this);
           let oldWrap;
           let newWrap;
           if (old_fd === new_fd) {
-            oldWrap = newWrap = wasi.fds.get(old_fd, WasiRights.PATH_LINK_SOURCE | WasiRights.PATH_LINK_TARGET, BigInt(0));
+            oldWrap = newWrap = wasi2.fds.get(old_fd, WasiRights.PATH_LINK_SOURCE | WasiRights.PATH_LINK_TARGET, BigInt(0));
           } else {
-            oldWrap = wasi.fds.get(old_fd, WasiRights.PATH_LINK_SOURCE, BigInt(0));
-            newWrap = wasi.fds.get(new_fd, WasiRights.PATH_LINK_TARGET, BigInt(0));
+            oldWrap = wasi2.fds.get(old_fd, WasiRights.PATH_LINK_SOURCE, BigInt(0));
+            newWrap = wasi2.fds.get(new_fd, WasiRights.PATH_LINK_TARGET, BigInt(0));
           }
           const { HEAPU8 } = getMemory(this);
-          const fs2 = getFs(this);
-          const resolvedOldPath = resolvePathSync(fs2, oldWrap, decoder.decode(unsharedSlice(HEAPU8, old_path, old_path + old_path_len)), old_flags);
+          const fs3 = getFs(this);
+          const resolvedOldPath = resolvePathSync(fs3, oldWrap, decoder.decode(unsharedSlice(HEAPU8, old_path, old_path + old_path_len)), old_flags);
           const resolvedNewPath = resolve(newWrap.realPath, decoder.decode(unsharedSlice(HEAPU8, new_path, new_path + new_path_len)));
-          fs2.linkSync(resolvedOldPath, resolvedNewPath);
+          fs3.linkSync(resolvedOldPath, resolvedNewPath);
           return 0;
         }, async function path_link(old_fd, old_flags, old_path, old_path_len, new_fd, new_path, new_path_len) {
           old_path = Number(old_path);
@@ -2305,20 +2300,20 @@ var init_wasm_util_esm_bundler = __esm({
           if (old_path === 0 || new_path === 0) {
             return 28;
           }
-          const wasi = _wasi.get(this);
+          const wasi2 = _wasi.get(this);
           let oldWrap;
           let newWrap;
           if (old_fd === new_fd) {
-            oldWrap = newWrap = wasi.fds.get(old_fd, WasiRights.PATH_LINK_SOURCE | WasiRights.PATH_LINK_TARGET, BigInt(0));
+            oldWrap = newWrap = wasi2.fds.get(old_fd, WasiRights.PATH_LINK_SOURCE | WasiRights.PATH_LINK_TARGET, BigInt(0));
           } else {
-            oldWrap = wasi.fds.get(old_fd, WasiRights.PATH_LINK_SOURCE, BigInt(0));
-            newWrap = wasi.fds.get(new_fd, WasiRights.PATH_LINK_TARGET, BigInt(0));
+            oldWrap = wasi2.fds.get(old_fd, WasiRights.PATH_LINK_SOURCE, BigInt(0));
+            newWrap = wasi2.fds.get(new_fd, WasiRights.PATH_LINK_TARGET, BigInt(0));
           }
           const { HEAPU8 } = getMemory(this);
-          const fs2 = getFs(this);
-          const resolvedOldPath = await resolvePathAsync(fs2, oldWrap, decoder.decode(unsharedSlice(HEAPU8, old_path, old_path + old_path_len)), old_flags);
+          const fs3 = getFs(this);
+          const resolvedOldPath = await resolvePathAsync(fs3, oldWrap, decoder.decode(unsharedSlice(HEAPU8, old_path, old_path + old_path_len)), old_flags);
           const resolvedNewPath = resolve(newWrap.realPath, decoder.decode(unsharedSlice(HEAPU8, new_path, new_path + new_path_len)));
-          await fs2.promises.link(resolvedOldPath, resolvedNewPath);
+          await fs3.promises.link(resolvedOldPath, resolvedNewPath);
           return 0;
         }, ["i32", "i32", "i32", "i32", "i32", "i32", "i32"], ["i32"]);
         function pathOpen(o_flags, fs_rights_base, fs_rights_inheriting, fs_flags) {
@@ -2373,21 +2368,21 @@ var init_wasm_util_esm_bundler = __esm({
           fs_rights_base = BigInt(fs_rights_base);
           fs_rights_inheriting = BigInt(fs_rights_inheriting);
           const { flags: flagsRes, needed_base: neededBase, needed_inheriting: neededInheriting } = pathOpen(o_flags, fs_rights_base, fs_rights_inheriting, fs_flags);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(dirfd, neededBase, neededInheriting);
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(dirfd, neededBase, neededInheriting);
           const memory = getMemory(this);
           const HEAPU8 = memory.HEAPU8;
           const pathString = decoder.decode(unsharedSlice(HEAPU8, path, path + path_len));
-          const fs2 = getFs(this);
-          const resolved_path = resolvePathSync(fs2, fileDescriptor, pathString, dirflags);
-          const r = fs2.openSync(resolved_path, flagsRes, 438);
-          const filetype = wasi.fds.getFileTypeByFd(r);
+          const fs3 = getFs(this);
+          const resolved_path = resolvePathSync(fs3, fileDescriptor, pathString, dirflags);
+          const r = fs3.openSync(resolved_path, flagsRes, 438);
+          const filetype = wasi2.fds.getFileTypeByFd(r);
           if ((o_flags & 2) !== 0 && filetype !== 3) {
             return 54;
           }
-          const { base: max_base, inheriting: max_inheriting } = getRights(wasi.fds.stdio, r, flagsRes, filetype);
-          const wrap = wasi.fds.insert(r, resolved_path, resolved_path, filetype, fs_rights_base & max_base, fs_rights_inheriting & max_inheriting, 0);
-          const stat = fs2.fstatSync(r, { bigint: true });
+          const { base: max_base, inheriting: max_inheriting } = getRights(wasi2.fds.stdio, r, flagsRes, filetype);
+          const wrap = wasi2.fds.insert(r, resolved_path, resolved_path, filetype, fs_rights_base & max_base, fs_rights_inheriting & max_inheriting, 0);
+          const stat = fs3.fstatSync(r, { bigint: true });
           if (stat.isFile()) {
             wrap.size = stat.size;
             if ((flagsRes & 1024) !== 0) {
@@ -2407,20 +2402,20 @@ var init_wasm_util_esm_bundler = __esm({
           fs_rights_base = BigInt(fs_rights_base);
           fs_rights_inheriting = BigInt(fs_rights_inheriting);
           const { flags: flagsRes, needed_base: neededBase, needed_inheriting: neededInheriting } = pathOpen(o_flags, fs_rights_base, fs_rights_inheriting, fs_flags);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(dirfd, neededBase, neededInheriting);
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(dirfd, neededBase, neededInheriting);
           const memory = getMemory(this);
           const HEAPU8 = memory.HEAPU8;
           const pathString = decoder.decode(unsharedSlice(HEAPU8, path, path + path_len));
-          const fs2 = getFs(this);
-          const resolved_path = await resolvePathAsync(fs2, fileDescriptor, pathString, dirflags);
-          const r = await fs2.promises.open(resolved_path, flagsRes, 438);
-          const filetype = await wasi.fds.getFileTypeByFd(r);
+          const fs3 = getFs(this);
+          const resolved_path = await resolvePathAsync(fs3, fileDescriptor, pathString, dirflags);
+          const r = await fs3.promises.open(resolved_path, flagsRes, 438);
+          const filetype = await wasi2.fds.getFileTypeByFd(r);
           if ((o_flags & 2) !== 0 && filetype !== 3) {
             return 54;
           }
-          const { base: max_base, inheriting: max_inheriting } = getRights(wasi.fds.stdio, r.fd, flagsRes, filetype);
-          const wrap = wasi.fds.insert(r, resolved_path, resolved_path, filetype, fs_rights_base & max_base, fs_rights_inheriting & max_inheriting, 0);
+          const { base: max_base, inheriting: max_inheriting } = getRights(wasi2.fds.stdio, r.fd, flagsRes, filetype);
+          const wrap = wasi2.fds.insert(r, resolved_path, resolved_path, filetype, fs_rights_base & max_base, fs_rights_inheriting & max_inheriting, 0);
           const stat = await r.stat({ bigint: true });
           if (stat.isFile()) {
             wrap.size = stat.size;
@@ -2442,12 +2437,12 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8, view } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.PATH_READLINK, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.PATH_READLINK, BigInt(0));
           let pathString = decoder.decode(unsharedSlice(HEAPU8, path, path + path_len));
           pathString = resolve(fileDescriptor.realPath, pathString);
-          const fs2 = getFs(this);
-          const link = fs2.readlinkSync(pathString);
+          const fs3 = getFs(this);
+          const link = fs3.readlinkSync(pathString);
           const linkData = encoder.encode(link);
           const len = Math.min(linkData.length, buf_len);
           if (len >= buf_len)
@@ -2466,12 +2461,12 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8, view } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.PATH_READLINK, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.PATH_READLINK, BigInt(0));
           let pathString = decoder.decode(unsharedSlice(HEAPU8, path, path + path_len));
           pathString = resolve(fileDescriptor.realPath, pathString);
-          const fs2 = getFs(this);
-          const link = await fs2.promises.readlink(pathString);
+          const fs3 = getFs(this);
+          const link = await fs3.promises.readlink(pathString);
           const linkData = encoder.encode(link);
           const len = Math.min(linkData.length, buf_len);
           if (len >= buf_len)
@@ -2488,12 +2483,12 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8 } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.PATH_REMOVE_DIRECTORY, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.PATH_REMOVE_DIRECTORY, BigInt(0));
           let pathString = decoder.decode(unsharedSlice(HEAPU8, path, path + path_len));
           pathString = resolve(fileDescriptor.realPath, pathString);
-          const fs2 = getFs(this);
-          fs2.rmdirSync(pathString);
+          const fs3 = getFs(this);
+          fs3.rmdirSync(pathString);
           return 0;
         }, async function path_remove_directory(fd, path, path_len) {
           path = Number(path);
@@ -2502,12 +2497,12 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8 } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.PATH_REMOVE_DIRECTORY, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.PATH_REMOVE_DIRECTORY, BigInt(0));
           let pathString = decoder.decode(unsharedSlice(HEAPU8, path, path + path_len));
           pathString = resolve(fileDescriptor.realPath, pathString);
-          const fs2 = getFs(this);
-          await fs2.promises.rmdir(pathString);
+          const fs3 = getFs(this);
+          await fs3.promises.rmdir(pathString);
           return 0;
         }, ["i32", "i32", "i32"], ["i32"]);
         defineImport("path_rename", function path_rename(old_fd, old_path, old_path_len, new_fd, new_path, new_path_len) {
@@ -2518,20 +2513,20 @@ var init_wasm_util_esm_bundler = __esm({
           if (old_path === 0 || new_path === 0) {
             return 28;
           }
-          const wasi = _wasi.get(this);
+          const wasi2 = _wasi.get(this);
           let oldWrap;
           let newWrap;
           if (old_fd === new_fd) {
-            oldWrap = newWrap = wasi.fds.get(old_fd, WasiRights.PATH_RENAME_SOURCE | WasiRights.PATH_RENAME_TARGET, BigInt(0));
+            oldWrap = newWrap = wasi2.fds.get(old_fd, WasiRights.PATH_RENAME_SOURCE | WasiRights.PATH_RENAME_TARGET, BigInt(0));
           } else {
-            oldWrap = wasi.fds.get(old_fd, WasiRights.PATH_RENAME_SOURCE, BigInt(0));
-            newWrap = wasi.fds.get(new_fd, WasiRights.PATH_RENAME_TARGET, BigInt(0));
+            oldWrap = wasi2.fds.get(old_fd, WasiRights.PATH_RENAME_SOURCE, BigInt(0));
+            newWrap = wasi2.fds.get(new_fd, WasiRights.PATH_RENAME_TARGET, BigInt(0));
           }
           const { HEAPU8 } = getMemory(this);
           const resolvedOldPath = resolve(oldWrap.realPath, decoder.decode(unsharedSlice(HEAPU8, old_path, old_path + old_path_len)));
           const resolvedNewPath = resolve(newWrap.realPath, decoder.decode(unsharedSlice(HEAPU8, new_path, new_path + new_path_len)));
-          const fs2 = getFs(this);
-          fs2.renameSync(resolvedOldPath, resolvedNewPath);
+          const fs3 = getFs(this);
+          fs3.renameSync(resolvedOldPath, resolvedNewPath);
           return 0;
         }, async function path_rename(old_fd, old_path, old_path_len, new_fd, new_path, new_path_len) {
           old_path = Number(old_path);
@@ -2541,20 +2536,20 @@ var init_wasm_util_esm_bundler = __esm({
           if (old_path === 0 || new_path === 0) {
             return 28;
           }
-          const wasi = _wasi.get(this);
+          const wasi2 = _wasi.get(this);
           let oldWrap;
           let newWrap;
           if (old_fd === new_fd) {
-            oldWrap = newWrap = wasi.fds.get(old_fd, WasiRights.PATH_RENAME_SOURCE | WasiRights.PATH_RENAME_TARGET, BigInt(0));
+            oldWrap = newWrap = wasi2.fds.get(old_fd, WasiRights.PATH_RENAME_SOURCE | WasiRights.PATH_RENAME_TARGET, BigInt(0));
           } else {
-            oldWrap = wasi.fds.get(old_fd, WasiRights.PATH_RENAME_SOURCE, BigInt(0));
-            newWrap = wasi.fds.get(new_fd, WasiRights.PATH_RENAME_TARGET, BigInt(0));
+            oldWrap = wasi2.fds.get(old_fd, WasiRights.PATH_RENAME_SOURCE, BigInt(0));
+            newWrap = wasi2.fds.get(new_fd, WasiRights.PATH_RENAME_TARGET, BigInt(0));
           }
           const { HEAPU8 } = getMemory(this);
           const resolvedOldPath = resolve(oldWrap.realPath, decoder.decode(unsharedSlice(HEAPU8, old_path, old_path + old_path_len)));
           const resolvedNewPath = resolve(newWrap.realPath, decoder.decode(unsharedSlice(HEAPU8, new_path, new_path + new_path_len)));
-          const fs2 = getFs(this);
-          await fs2.promises.rename(resolvedOldPath, resolvedNewPath);
+          const fs3 = getFs(this);
+          await fs3.promises.rename(resolvedOldPath, resolvedNewPath);
           return 0;
         }, ["i32", "i32", "i32", "i32", "i32", "i32"], ["i32"]);
         defineImport("path_symlink", function path_symlink(old_path, old_path_len, fd, new_path, new_path_len) {
@@ -2566,13 +2561,13 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8 } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.PATH_SYMLINK, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.PATH_SYMLINK, BigInt(0));
           const oldPath = decoder.decode(unsharedSlice(HEAPU8, old_path, old_path + old_path_len));
           let newPath = decoder.decode(unsharedSlice(HEAPU8, new_path, new_path + new_path_len));
           newPath = resolve(fileDescriptor.realPath, newPath);
-          const fs2 = getFs(this);
-          fs2.symlinkSync(oldPath, newPath);
+          const fs3 = getFs(this);
+          fs3.symlinkSync(oldPath, newPath);
           return 0;
         }, async function path_symlink(old_path, old_path_len, fd, new_path, new_path_len) {
           old_path = Number(old_path);
@@ -2583,13 +2578,13 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8 } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.PATH_SYMLINK, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.PATH_SYMLINK, BigInt(0));
           const oldPath = decoder.decode(unsharedSlice(HEAPU8, old_path, old_path + old_path_len));
           let newPath = decoder.decode(unsharedSlice(HEAPU8, new_path, new_path + new_path_len));
           newPath = resolve(fileDescriptor.realPath, newPath);
-          const fs2 = getFs(this);
-          await fs2.promises.symlink(oldPath, newPath);
+          const fs3 = getFs(this);
+          await fs3.promises.symlink(oldPath, newPath);
           return 0;
         }, ["i32", "i32", "i32", "i32", "i32"], ["i32"]);
         defineImport("path_unlink_file", function path_unlink_file(fd, path, path_len) {
@@ -2599,12 +2594,12 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8 } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.PATH_UNLINK_FILE, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.PATH_UNLINK_FILE, BigInt(0));
           let pathString = decoder.decode(unsharedSlice(HEAPU8, path, path + path_len));
           pathString = resolve(fileDescriptor.realPath, pathString);
-          const fs2 = getFs(this);
-          fs2.unlinkSync(pathString);
+          const fs3 = getFs(this);
+          fs3.unlinkSync(pathString);
           return 0;
         }, async function path_unlink_file(fd, path, path_len) {
           path = Number(path);
@@ -2613,12 +2608,12 @@ var init_wasm_util_esm_bundler = __esm({
             return 28;
           }
           const { HEAPU8 } = getMemory(this);
-          const wasi = _wasi.get(this);
-          const fileDescriptor = wasi.fds.get(fd, WasiRights.PATH_UNLINK_FILE, BigInt(0));
+          const wasi2 = _wasi.get(this);
+          const fileDescriptor = wasi2.fds.get(fd, WasiRights.PATH_UNLINK_FILE, BigInt(0));
           let pathString = decoder.decode(unsharedSlice(HEAPU8, path, path + path_len));
           pathString = resolve(fileDescriptor.realPath, pathString);
-          const fs2 = getFs(this);
-          await fs2.promises.unlink(pathString);
+          const fs3 = getFs(this);
+          await fs3.promises.unlink(pathString);
           return 0;
         }, ["i32", "i32", "i32"], ["i32"]);
         this._setMemory = function setMemory(m) {
@@ -2628,27 +2623,27 @@ var init_wasm_util_esm_bundler = __esm({
           _memory.set(_this, extendMemory(m));
         };
       }
-      static createSync(args, env, preopens, stdio, fs, print, printErr) {
+      static createSync(args, env, preopens, stdio, fs2, print, printErr) {
         const fds = new SyncTable({
           size: 3,
           in: stdio[0],
           out: stdio[1],
           err: stdio[2],
-          fs,
+          fs: fs2,
           print,
           printErr
         });
-        const _this = new _WASI$1(args, env, fds, false, fs);
+        const _this = new _WASI$1(args, env, fds, false, fs2);
         if (preopens.length > 0) {
           for (let i = 0; i < preopens.length; ++i) {
-            const realPath = fs.realpathSync(preopens[i].realPath, "utf8");
-            const fd = fs.openSync(realPath, "r", 438);
+            const realPath = fs2.realpathSync(preopens[i].realPath, "utf8");
+            const fd = fs2.openSync(realPath, "r", 438);
             fds.insertPreopen(fd, preopens[i].mappedPath, realPath);
           }
         }
         return _this;
       }
-      static async createAsync(args, env, preopens, stdio, fs, print, printErr, asyncify) {
+      static async createAsync(args, env, preopens, stdio, fs2, print, printErr, asyncify) {
         const fds = new AsyncTable({
           size: 3,
           in: stdio[0],
@@ -2657,12 +2652,12 @@ var init_wasm_util_esm_bundler = __esm({
           print,
           printErr
         });
-        const _this = new _WASI$1(args, env, fds, true, fs, asyncify);
+        const _this = new _WASI$1(args, env, fds, true, fs2, asyncify);
         if (preopens.length > 0) {
           for (let i = 0; i < preopens.length; ++i) {
             const entry = preopens[i];
-            const realPath = await fs.promises.realpath(entry.realPath);
-            const fd = await fs.promises.open(realPath, "r", 438);
+            const realPath = await fs2.promises.realpath(entry.realPath);
+            const fd = await fs2.promises.open(realPath, "r", 438);
             await fds.insertPreopen(fd, entry.mappedPath, realPath);
           }
         }
@@ -2737,98 +2732,93 @@ var init_wasm_util_esm_bundler = __esm({
 
 // node_modules/.pnpm/@bokuweb+reg-cli-wasm@0.0.0-experimental6/node_modules/@bokuweb/reg-cli-wasm/dist/shared/reg-cli-wasm.96c141f0.cjs
 var require_reg_cli_wasm_96c141f0 = __commonJS({
-  "node_modules/.pnpm/@bokuweb+reg-cli-wasm@0.0.0-experimental6/node_modules/@bokuweb/reg-cli-wasm/dist/shared/reg-cli-wasm.96c141f0.cjs"(exports) {
+  "node_modules/.pnpm/@bokuweb+reg-cli-wasm@0.0.0-experimental6/node_modules/@bokuweb/reg-cli-wasm/dist/shared/reg-cli-wasm.96c141f0.cjs"(exports2) {
     "use strict";
-    var path = __require("path");
-    var url = __require("url");
-    var promises = __require("node:fs/promises");
-    var node_path = __require("node:path");
+    var path = require("path");
+    var url = require("url");
+    var promises = require("node:fs/promises");
+    var node_path = require("node:path");
     var _documentCurrentScript = typeof document !== "undefined" ? document.currentScript : null;
-    function _interopDefaultCompat(e) {
+    function _interopDefaultCompat2(e) {
       return e && typeof e === "object" && "default" in e ? e.default : e;
     }
-    var path__default = /* @__PURE__ */ _interopDefaultCompat(path);
+    var path__default = /* @__PURE__ */ _interopDefaultCompat2(path);
     var isCJS = typeof __dirname !== "undefined";
     var readWasm = () => {
-      const dir = isCJS ? __dirname : path__default.dirname(url.fileURLToPath(typeof document === "undefined" ? __require("url").pathToFileURL(__filename).href : _documentCurrentScript && _documentCurrentScript.tagName.toUpperCase() === "SCRIPT" && _documentCurrentScript.src || new URL("shared/reg-cli-wasm.96c141f0.cjs", document.baseURI).href));
-      const file = promises.readFile(node_path.join(dir, "./reg.wasm"));
-      return file;
+      const dir = isCJS ? __dirname : path__default.dirname(url.fileURLToPath(typeof document === "undefined" ? require("url").pathToFileURL(__filename).href : _documentCurrentScript && _documentCurrentScript.tagName.toUpperCase() === "SCRIPT" && _documentCurrentScript.src || new URL("shared/reg-cli-wasm.96c141f0.cjs", document.baseURI).href));
+      const file2 = promises.readFile(node_path.join(dir, "./reg.wasm"));
+      return file2;
     };
     var resolveExtention = () => {
       return isCJS ? "cjs" : "mjs";
     };
-    exports.isCJS = isCJS;
-    exports.readWasm = readWasm;
-    exports.resolveExtention = resolveExtention;
+    exports2.isCJS = isCJS;
+    exports2.readWasm = readWasm;
+    exports2.resolveExtention = resolveExtention;
   }
 });
 
 // node_modules/.pnpm/@bokuweb+reg-cli-wasm@0.0.0-experimental6/node_modules/@bokuweb/reg-cli-wasm/dist/entry.cjs
-var require_entry = __commonJS({
-  "node_modules/.pnpm/@bokuweb+reg-cli-wasm@0.0.0-experimental6/node_modules/@bokuweb/reg-cli-wasm/dist/entry.cjs"() {
-    var fs = __require("node:fs");
-    var wasmUtil = (init_wasm_util_esm_bundler(), __toCommonJS(wasm_util_esm_bundler_exports));
-    var node_process = __require("node:process");
-    var node_worker_threads = __require("node:worker_threads");
-    var utils = require_reg_cli_wasm_96c141f0();
-    __require("path");
-    __require("url");
-    __require("node:fs/promises");
-    __require("node:path");
-    function _interopDefaultCompat(e) {
-      return e && typeof e === "object" && "default" in e ? e.default : e;
-    }
-    var fs__default = /* @__PURE__ */ _interopDefaultCompat(fs);
-    var wasi = new wasmUtil.WASI({
-      version: "preview1",
-      args: node_worker_threads.workerData.argv,
-      env: node_process.env,
-      returnOnExit: true,
-      preopens: { "./": "./" },
-      fs: fs__default
-    });
-    var imports = wasi.getImportObject();
-    var file = utils.readWasm();
-    (async () => {
-      try {
-        const wasm = await WebAssembly.compile(await file);
-        const opts = { initial: 256, maximum: 16384, shared: true };
-        const memory = new WebAssembly.Memory(opts);
-        let instance = await WebAssembly.instantiate(wasm, {
-          ...imports,
-          wasi: {
-            "thread-spawn": (startArg) => {
-              const threadIdBuffer = new SharedArrayBuffer(4);
-              const id = new Int32Array(threadIdBuffer);
-              Atomics.store(id, 0, -1);
-              node_worker_threads.parentPort?.postMessage({
-                cmd: "thread-spawn",
-                startArg,
-                threadId: id,
-                memory
-              });
-              Atomics.wait(id, 0, -1);
-              const tid = Atomics.load(id, 0);
-              return tid;
-            }
-          },
-          env: { memory }
-        });
-        wasi.start(instance);
-        const m = instance.exports.wasm_main();
-        const view = new DataView(memory.buffer, m);
-        const len = view.getUint32(0, true);
-        const bufPtr = view.getUint32(4, true);
-        const stringData = new Uint8Array(memory.buffer, bufPtr, len);
-        const decoder2 = new TextDecoder("utf-8");
-        const string = decoder2.decode(stringData);
-        instance.exports.free_wasm_output(m);
-        const report = JSON.parse(string);
-        node_worker_threads.parentPort?.postMessage({ cmd: "complete", data: report });
-      } catch (e) {
-        throw e;
-      }
-    })();
-  }
+var fs = require("node:fs");
+var wasmUtil = (init_wasm_util_esm_bundler(), __toCommonJS(wasm_util_esm_bundler_exports));
+var node_process = require("node:process");
+var node_worker_threads = require("node:worker_threads");
+var utils = require_reg_cli_wasm_96c141f0();
+require("path");
+require("url");
+require("node:fs/promises");
+require("node:path");
+function _interopDefaultCompat(e) {
+  return e && typeof e === "object" && "default" in e ? e.default : e;
+}
+var fs__default = /* @__PURE__ */ _interopDefaultCompat(fs);
+var wasi = new wasmUtil.WASI({
+  version: "preview1",
+  args: node_worker_threads.workerData.argv,
+  env: node_process.env,
+  returnOnExit: true,
+  preopens: { "./": "./" },
+  fs: fs__default
 });
-export default require_entry();
+var imports = wasi.getImportObject();
+var file = utils.readWasm();
+(async () => {
+  try {
+    const wasm = await WebAssembly.compile(await file);
+    const opts = { initial: 256, maximum: 16384, shared: true };
+    const memory = new WebAssembly.Memory(opts);
+    let instance = await WebAssembly.instantiate(wasm, {
+      ...imports,
+      wasi: {
+        "thread-spawn": (startArg) => {
+          const threadIdBuffer = new SharedArrayBuffer(4);
+          const id = new Int32Array(threadIdBuffer);
+          Atomics.store(id, 0, -1);
+          node_worker_threads.parentPort?.postMessage({
+            cmd: "thread-spawn",
+            startArg,
+            threadId: id,
+            memory
+          });
+          Atomics.wait(id, 0, -1);
+          const tid = Atomics.load(id, 0);
+          return tid;
+        }
+      },
+      env: { memory }
+    });
+    wasi.start(instance);
+    const m = instance.exports.wasm_main();
+    const view = new DataView(memory.buffer, m);
+    const len = view.getUint32(0, true);
+    const bufPtr = view.getUint32(4, true);
+    const stringData = new Uint8Array(memory.buffer, bufPtr, len);
+    const decoder2 = new TextDecoder("utf-8");
+    const string = decoder2.decode(stringData);
+    instance.exports.free_wasm_output(m);
+    const report = JSON.parse(string);
+    node_worker_threads.parentPort?.postMessage({ cmd: "complete", data: report });
+  } catch (e) {
+    throw e;
+  }
+})();
