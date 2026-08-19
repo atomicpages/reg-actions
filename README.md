@@ -1,4 +1,4 @@
-<p align="center"><img src ="https://github.com/bokuweb/reg-actions/blob/main/logo.png?raw=true" /></p>
+<p align="center"><img src ="https://github.com/atomicpages/reg-actions/blob/main/logo.png?raw=true" /></p>
 
 <p align="center">
     A visual regression test tool for github actions :octocat:.
@@ -6,9 +6,9 @@
 
 ---
 
-> [!WARNING] v1 and v2 are deprecated. Please use v3.
+> [!WARNING] v1, v2, and v3 are deprecated. Please use v4.
 
-[![GitHub Actions Status](https://github.com/bokuweb/reg-actions/workflows/CI/badge.svg)](https://github.com/bokuweb/reg-actions/actions)
+[![GitHub Actions Status](https://github.com/atomicpages/reg-actions/actions/workflows/test.yml/badge.svg)](https://github.com/atomicpages/reg-actions/actions/workflows/test.yml)
 
 ## Table of Contents
 
@@ -19,6 +19,7 @@
   - [Action outputs](#action-outputs)
 - [Limitation](#limitation)
 - [Troubleshooting](#troubleshooting)
+- [Releases](#releases)
 - [Contribute](#contribute)
 - [License](#license)
 
@@ -54,9 +55,10 @@ You can also see an
 
 ### Minimal setup
 
-Let's start with a minimal workflow setup. Please add `on: [push, pull_request]`
-to make it work correctly. `github-token` defaults to `${{ github.token }}`;
-pass a PAT only when the default token is not enough.
+Let's start with a minimal workflow setup. Run it for pull requests and pushes to
+`main` so pull requests can compare against the main branch baseline.
+`github-token` defaults to `${{ github.token }}`; pass a PAT only when the
+default token is not enough.
 
 The workflow needs `contents: write` (image branch), `pull-requests: write` (PR
 comments), and `actions: read` (list/download artifacts).
@@ -64,7 +66,11 @@ comments), and `actions: read` (list/download artifacts).
 ```yaml
 name: CI
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -76,15 +82,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: reg-viz/reg-actions@v3
+      - uses: atomicpages/reg-actions@v4
         with:
           image-directory-path: "./images"
 ```
 
+`v4` moves to the latest compatible v4 release. Pin an immutable version such
+as `v4.0.0`, or a full commit SHA, when reproducibility is more important than
+automatically receiving compatible updates.
+
 ### Action inputs
 
 Input definitions are written in
-[action.yml](https://github.com/reg-viz/reg-actions/blob/main/dist/action.yml).
+[action.yml](https://github.com/atomicpages/reg-actions/blob/main/action.yml).
 
 #### `github-token` (Optional)
 
@@ -262,7 +272,7 @@ Number of expected images missing from the actual set.
 ID of the uploaded workflow artifact, if upload succeeded.
 
 ```yaml
-- uses: reg-viz/reg-actions@v3
+- uses: atomicpages/reg-actions@v4
   id: reg
   with:
     image-directory-path: "./images"
@@ -282,6 +292,20 @@ ID of the uploaded workflow artifact, if upload succeeded.
 Please go to the `Settings > Actions > General > Workflow permissions` of the
 relevant repository and change the permission from
 `Read repository contents permission` to `Read and write permissions`.
+
+## Releases
+
+Pull request titles must follow
+[Conventional Commits](https://www.conventionalcommits.org/) and should be
+squash-merged using the pull request title. Release Please converts `fix:`,
+`feat:`, and breaking `type!:` changes into patch, minor, and major versions.
+It creates GitHub releases and immutable `v4.x.y` tags, then moves the `v4` tag
+to the latest v4 release. This project is not published to npm.
+
+Set a `RELEASE_PLEASE_TOKEN` repository secret to a fine-grained token with
+contents and pull request write access when release pull requests must trigger
+CI. Without it, releases use `GITHUB_TOKEN`; GitHub does not start new workflow
+runs for pull requests created by that token.
 
 ## Contribute
 

@@ -1,9 +1,18 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
+  actions: read
   pull-requests: write
 
 jobs:
@@ -20,25 +29,23 @@ jobs:
       # supervised tree.
       - uses: bokuweb/sakimori/job@8491d10e50cf65e438bedb87cd6f4e496140ac29 # v0.34.4
         with:
+          version: v0.34.4
           policy: .github/sakimori.yml
           mode: block
           log: sakimori.log.json
           html: sakimori-report.html
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      # version omitted: reads packageManager from package.json (pnpm@10.14.0)
-      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - uses: ./.github/actions/build
+        with:
+          verify-dist: "true"
 
-      - name: pnpm i + package
-        run: |
-          pnpm i --frozen-lockfile
-          pnpm package
-
-      - uses: ./dist
+      - uses: ./
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           image-directory-path: "./images"
           disable-branch: true
+          comment-mode: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork && 'never' || 'always' }}
           report-file-path: './report.html'
 
       # Flush the daemon so upload-artifact + the comment sub-action
@@ -58,7 +65,7 @@ jobs:
           if-no-files-found: ignore
 
       - uses: bokuweb/sakimori/comment@8491d10e50cf65e438bedb87cd6f4e496140ac29 # v0.34.4
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
         with:
           log: sakimori.log.json
           artifact-name: sakimori-report

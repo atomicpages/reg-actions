@@ -25,7 +25,7 @@ export const compare = async (config: Config): Promise<CompareOutput> =>
       // update: false, TODO:
       // ignoreChange: true, TODO:
       urlPrefix: "",
-      thresholdPixel: config.thresholdPixel,
+      thresholdPixel: config.thresholdPixel ?? undefined,
       thresholdRate: config.thresholdRate,
       matchingThreshold: config.matchingThreshold,
       enableAntialias: config.enableAntialias,
