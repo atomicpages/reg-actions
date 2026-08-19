@@ -11,24 +11,23 @@ jobs:
       # supervised the wrapped `pnpm i + pnpm package` block; this
       # widens supervision to every step including the github-script
       # randomiser and the `./dist` action under test.
-      - uses: bokuweb/sakimori/job@v0
+      - uses: bokuweb/sakimori/job@8491d10e50cf65e438bedb87cd6f4e496140ac29 # v0.34.4
         with:
           policy: .github/sakimori.yml
           mode: block
           log: sakimori.log.json
           html: sakimori-report.html
 
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 9
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # version omitted: reads packageManager from package.json (pnpm@10.14.0)
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
 
       - name: pnpm i + package
         run: |
           pnpm i --frozen-lockfile
           pnpm package
 
-      - uses: actions/github-script@v5
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         id: target
         with:
           result-encoding: string

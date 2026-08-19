@@ -1,8 +1,7 @@
-import { basename, parse } from 'path';
-
-import { Event } from './event';
-import { Run } from './run';
-import { CompareOutput } from './compare';
+import { basename, parse } from "node:path";
+import type { CompareOutput } from "./compare";
+import type { Event } from "./event";
+import type { Run } from "./run";
 
 export type CreateCommentWithTargetInput = {
   event: Event;
@@ -15,7 +14,7 @@ export type CreateCommentWithTargetInput = {
   date: string;
   customReportPage: string | null;
   disableBranch: boolean;
-  commentReportFormat: 'raw' | 'summarized';
+  commentReportFormat: "raw" | "summarized";
   artifactId?: number;
 };
 
@@ -28,17 +27,21 @@ export type CreateCommentWithoutTargetInput = {
 };
 
 const isSuccess = (result: CompareOutput) => {
-  return result.failedItems.length === 0 && result.newItems.length === 0 && result.deletedItems.length === 0;
+  return (
+    result.failedItems.length === 0 &&
+    result.newItems.length === 0 &&
+    result.deletedItems.length === 0
+  );
 };
 
 const badge = (result: CompareOutput) => {
   if (result.failedItems.length) {
-    return '![change detected](https://img.shields.io/badge/%E2%9C%94%20reg-change%20detected-orange)';
+    return "![change detected](https://img.shields.io/badge/%E2%9C%94%20reg-change%20detected-orange)";
   }
   if (result.newItems.length) {
-    return '![new items](https://img.shields.io/badge/%E2%9C%94%20reg-new%20items-green)';
+    return "![new items](https://img.shields.io/badge/%E2%9C%94%20reg-new%20items-green)";
   }
-  return '![success](https://img.shields.io/badge/%E2%9C%94%20reg-passed-green)';
+  return "![success](https://img.shields.io/badge/%E2%9C%94%20reg-passed-green)";
 };
 
 const createBaseUrl = ({
@@ -66,21 +69,21 @@ const differences = ({
 }: {
   result: CompareOutput;
   baseUrl: string;
-  commentReportFormat: 'raw' | 'summarized';
+  commentReportFormat: "raw" | "summarized";
 }): string => {
-  if (result.failedItems.length === 0) return '';
-  const comment = `   
-     
+  if (result.failedItems.length === 0) return "";
+  const comment = `
+
 ### Differences
-  
+
 ${result.failedItems
-  .map(item => {
+  .map((item) => {
     const base = basename(item);
     const filename = encodeURIComponent(base);
-    const actual = baseUrl + 'actual/' + filename + '?raw=true';
-    const expected = baseUrl + 'expected/' + filename + '?raw=true';
+    const actual = `${baseUrl}actual/${filename}?raw=true`;
+    const expected = `${baseUrl}expected/${filename}?raw=true`;
     const diffName = encodeURIComponent(`${parse(base).name}.webp`);
-    const diff = baseUrl + 'diff/' + diffName + '?raw=true';
+    const diff = `${baseUrl}diff/${diffName}?raw=true`;
     const table = `
 | actual|![Actual](${actual}) |
 |--|--|
@@ -88,7 +91,7 @@ ${result.failedItems
 |difference|![Difference](${diff})|
 `;
 
-    if (commentReportFormat === 'summarized') {
+    if (commentReportFormat === "summarized") {
       return `<details><summary>${base}</summary>
 ${table}
 </details>`;
@@ -97,7 +100,7 @@ ${table}
 ${table}`;
     }
   })
-  .join('\n')}
+  .join("\n")}
   `;
 
   return comment;
@@ -110,24 +113,24 @@ const newItems = ({
 }: {
   result: CompareOutput;
   baseUrl: string;
-  commentReportFormat: 'raw' | 'summarized';
+  commentReportFormat: "raw" | "summarized";
 }): string => {
-  if (result.newItems.length === 0) return '';
-  const comment = `   
-     
+  if (result.newItems.length === 0) return "";
+  const comment = `
+
 ### New Items
-  
+
 ${result.newItems
-  .map(item => {
+  .map((item) => {
     const base = basename(item);
     const filename = encodeURIComponent(base);
-    const img = baseUrl + 'actual/' + filename + '?raw=true';
+    const img = `${baseUrl}actual/${filename}?raw=true`;
     const table = `
 |  |
 |--|
 |![NewItem](${img})|
 `;
-    if (commentReportFormat === 'summarized') {
+    if (commentReportFormat === "summarized") {
       return `<details><summary>${base}</summary>
 ${table}
 </details>`;
@@ -136,7 +139,7 @@ ${table}
 ${table}`;
     }
   })
-  .join('\n')}
+  .join("\n")}
   `;
 
   return comment;
@@ -149,24 +152,24 @@ const deletedItems = ({
 }: {
   result: CompareOutput;
   baseUrl: string;
-  commentReportFormat: 'raw' | 'summarized';
+  commentReportFormat: "raw" | "summarized";
 }): string => {
-  if (result.deletedItems.length === 0) return '';
-  const comment = `   
-   
+  if (result.deletedItems.length === 0) return "";
+  const comment = `
+
 ### Deleted Items
-  
+
 ${result.deletedItems
-  .map(item => {
+  .map((item) => {
     const base = basename(item);
     const filename = encodeURIComponent(base);
-    const img = baseUrl + 'expected/' + filename + '?raw=true';
+    const img = `${baseUrl}expected/${filename}?raw=true`;
     const table = `
 |  |
 |--|
 |![DeleteItem](${img})|
 `;
-    if (commentReportFormat === 'summarized') {
+    if (commentReportFormat === "summarized") {
       return `<details><summary>${base}</summary>
 ${table}
 </details>`;
@@ -175,7 +178,7 @@ ${table}
 ${table}`;
     }
   })
-  .join('\n')}
+  .join("\n")}
   `;
 
   return comment;
@@ -195,17 +198,26 @@ export const createCommentWithTarget = ({
   disableBranch,
   commentReportFormat,
 }: CreateCommentWithTargetInput): string => {
-  const [owner, repoName] = event.repository.full_name.split('/');
+  const [owner, repoName] = event.repository.full_name.split("/");
   const targetHash = targetRun.head_sha;
   const currentHashShort = currentHash.slice(0, 7);
   const targetHashShort = targetHash.slice(0, 7);
-  const baseUrl = createBaseUrl({ owner, repoName, branch: regBranch, runId, artifactName, date });
+  const baseUrl = createBaseUrl({
+    owner,
+    repoName,
+    branch: regBranch,
+    runId,
+    artifactName,
+    date,
+  });
 
   const report =
-    (result.failedItems.length === 0 && result.newItems.length === 0 && result.deletedItems.length === 0) ||
+    (result.failedItems.length === 0 &&
+      result.newItems.length === 0 &&
+      result.deletedItems.length === 0) ||
     disableBranch
-      ? ''
-      : `   
+      ? ""
+      : `
 <details>
 <summary>📝 Report</summary>
 ${differences({ result, baseUrl, commentReportFormat })}
@@ -214,14 +226,14 @@ ${deletedItems({ result, baseUrl, commentReportFormat })}
 </details>`;
 
   const reportUrl = customReportPage
-    ? `   
+    ? `
 Check out the report [here](${customReportPage}).`
-    : '';
+    : "";
   const successOrFailMessage = isSuccess(result)
     ? `${badge(result)}
 
  ## ArtifactName: [\`${artifactName}\`](https://github.com/${owner}/${repoName}/actions/runs/${runId}/artifacts/${artifactId})
-  
+
 ✨✨ That's perfect, there is no visual difference! ✨✨
 ${reportUrl}
     `
@@ -234,9 +246,9 @@ ${reportUrl}
 
   const body = `This report was generated by comparing [${currentHashShort}](https://github.com/${owner}/${repoName}/commit/${currentHash}) with [${targetHashShort}](https://github.com/${owner}/${repoName}/commit/${targetHash}).
 If you would like to check difference, please check [here](https://github.com/${owner}/${repoName}/compare/${targetHashShort}..${currentHashShort}).
-  
+
 ${successOrFailMessage}
-  
+
 | item    | count                         |
 |:--------|:-----------------------------:|
 | pass    | ${result.passedItems.length}  |
@@ -249,13 +261,15 @@ ${report}
   // comment body size limitation is 64KiB
   // So we set 60KiB with margin
   if (new Blob([body]).size > 60 * 1024) {
-    const lines = body.split('\n');
-    while (new Blob([lines.join('\n')]).size > 60 * 1024) {
+    const lines = body.split("\n");
+    while (new Blob([lines.join("\n")]).size > 60 * 1024) {
       lines.pop();
     }
-    lines.push('\n');
-    lines.push('⚠️ report is omitted because comment body size limitation exceeded. Please check report in artifact.');
-    return lines.join('\n');
+    lines.push("\n");
+    lines.push(
+      "⚠️ report is omitted because comment body size limitation exceeded. Please check report in artifact.",
+    );
+    return lines.join("\n");
   }
   return body;
 };
@@ -266,11 +280,11 @@ export const createCommentWithoutTarget = ({
   customReportPage,
 }: CreateCommentWithoutTargetInput): string => {
   const report = customReportPage
-    ? `   
+    ? `
   Check out the report [here](${customReportPage}).`
-    : '';
+    : "";
   const body = `## ArtifactName: \`${artifactName}\`
-  
+
 Failed to find a target artifact.
 All items will be treated as new items and will be used as expected data for the next time.
 
@@ -286,13 +300,24 @@ ${report}
   return body.slice(0, 65536);
 };
 
-export const isRegActionComment = ({ artifactName, body }: { artifactName: string; body: string }): boolean => {
+export const isRegActionComment = ({
+  artifactName,
+  body,
+}: {
+  artifactName: string;
+  body: string;
+}): boolean => {
   return (
-    body.includes(`## ArtifactName: \`${artifactName}\``) || body.includes(`## ArtifactName: [\`${artifactName}\`]`)
+    body.includes(`## ArtifactName: \`${artifactName}\``) ||
+    body.includes(`## ArtifactName: [\`${artifactName}\`]`)
   );
 };
 
-export const createResolvedComment = ({ artifactName }: { artifactName: string }): string => {
+export const createResolvedComment = ({
+  artifactName,
+}: {
+  artifactName: string;
+}): string => {
   return `![resolved](https://img.shields.io/badge/%E2%9C%94%20reg-resolved-green)
 
 ## ArtifactName: \`${artifactName}\`

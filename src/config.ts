@@ -1,7 +1,7 @@
-import * as core from '@actions/core';
-import { statSync } from 'fs';
-import { ARTIFACT_NAME } from './constants';
-import { join } from 'path';
+import { statSync } from "node:fs";
+import { join } from "node:path";
+import * as core from "@actions/core";
+import { ARTIFACT_NAME } from "./constants";
 
 export interface Config {
   imageDirectoryPath: string;
@@ -16,10 +16,10 @@ export interface Config {
   disableBranch: boolean;
   customReportPage: string | null;
   reportFilePath: string | null;
-  commentReportFormat: 'raw' | 'summarized';
-  outdatedCommentAction: 'none' | 'minimize' | 'update';
+  commentReportFormat: "raw" | "summarized";
+  outdatedCommentAction: "none" | "minimize" | "update";
   retentionDays: number;
-  commentMode: 'always' | 'changes' | 'never';
+  commentMode: "always" | "changes" | "never";
 }
 
 const validateGitHubToken = (githubToken: string | undefined) => {
@@ -30,13 +30,17 @@ const validateGitHubToken = (githubToken: string | undefined) => {
 
 const validateImageDirPath = (path: string | undefined) => {
   if (!path) {
-    throw new Error(`'image-directory-path' is not set. Please specify path to image directory.`);
+    throw new Error(
+      `'image-directory-path' is not set. Please specify path to image directory.`,
+    );
   }
   try {
     const s = statSync(path);
     if (s.isDirectory()) return;
   } catch (_) {
-    throw new Error(`'image-directory-path' is not directory. Please specify path to image directory.`);
+    throw new Error(
+      `'image-directory-path' is not directory. Please specify path to image directory.`,
+    );
   }
 };
 
@@ -45,17 +49,19 @@ const getBoolInput = (name: string): boolean => {
   if (!input) {
     return false;
   }
-  if (input !== 'true' && input !== 'false') {
-    throw new Error(`'${name}' input must be boolean value 'true' or 'false' but got '${input}'`);
+  if (input !== "true" && input !== "false") {
+    throw new Error(
+      `'${name}' input must be boolean value 'true' or 'false' but got '${input}'`,
+    );
   }
-  return input === 'true';
+  return input === "true";
 };
 
 const getNumberInput = (name: string): number | null => {
   const v = core.getInput(name);
   if (!v) return null;
   const n = Number(v);
-  if (typeof n === 'number') return n;
+  if (typeof n === "number") return n;
   throw new Error(`'${name}' input must be number value but got '${n}'`);
 };
 
@@ -80,80 +86,98 @@ const validateTargetHash = (h: string | null) => {
 
 const validateCustomReportPage = (link: string | null) => {
   if (!link) return;
-  if (!/^(?:http(s)?:\/\/)[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/.test(link)) {
+  if (
+    !/^(?:http(s)?:\/\/)[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/.test(
+      link,
+    )
+  ) {
     throw new Error(`'custom-report-page' input must be a valid url '${link}'`);
   }
 };
 
 const validateReportFilePath = (path: string | undefined) => {
-  if (path === undefined || path === '') {
+  if (path === undefined || path === "") {
     return;
   }
 };
 
-function validateCommentReportFormat(format: string): asserts format is 'raw' | 'summarized' {
-  if (format !== 'raw' && format !== 'summarized') {
-    throw new Error(`'comment-report-format' input must be 'raw' or 'summarized' but got '${format}'`);
+function validateCommentReportFormat(
+  format: string,
+): asserts format is "raw" | "summarized" {
+  if (format !== "raw" && format !== "summarized") {
+    throw new Error(
+      `'comment-report-format' input must be 'raw' or 'summarized' but got '${format}'`,
+    );
   }
 }
 
-function validateOutdatedCommentAction(action: string): asserts action is 'none' | 'minimize' | 'update' {
-  if (action !== 'none' && action !== 'minimize' && action !== 'update') {
-    throw new Error(`'outdated-comment-action' input must be 'none', 'minimize', or 'update' but got '${action}'`);
+function validateOutdatedCommentAction(
+  action: string,
+): asserts action is "none" | "minimize" | "update" {
+  if (action !== "none" && action !== "minimize" && action !== "update") {
+    throw new Error(
+      `'outdated-comment-action' input must be 'none', 'minimize', or 'update' but got '${action}'`,
+    );
   }
 }
 
-function validateCommentMode(value: string): asserts value is 'always' | 'changes' | 'never' {
-  if (value !== 'always' && value !== 'changes' && value !== 'never') {
-    throw new Error(`'comment-mode' input must be 'always', 'changes', or 'never' but got '${value}'`);
+function validateCommentMode(
+  value: string,
+): asserts value is "always" | "changes" | "never" {
+  if (value !== "always" && value !== "changes" && value !== "never") {
+    throw new Error(
+      `'comment-mode' input must be 'always', 'changes', or 'never' but got '${value}'`,
+    );
   }
 }
 
 export const getConfig = (): Config => {
-  const githubToken = core.getInput('github-token');
-  const imageDirectoryPath = core.getInput('image-directory-path');
+  const githubToken = core.getInput("github-token");
+  const imageDirectoryPath = core.getInput("image-directory-path");
   validateGitHubToken(githubToken);
+  core.setSecret(githubToken);
   validateImageDirPath(imageDirectoryPath);
-  const matchingThreshold = getNumberInput('matching-threshold') ?? 0;
-  const thresholdRate = getNumberInput('threshold-rate') ?? 0;
-  const thresholdPixel = getNumberInput('threshold-pixel');
-  const retentionDays = getNumberInput('retention-days') ?? 30;
+  const matchingThreshold = getNumberInput("matching-threshold") ?? 0;
+  const thresholdRate = getNumberInput("threshold-rate") ?? 0;
+  const thresholdPixel = getNumberInput("threshold-pixel");
+  const retentionDays = getNumberInput("retention-days") ?? 30;
   validateMatchingThreshold(matchingThreshold);
   validateThresholdRate(thresholdRate);
-  const targetHash = core.getInput('target-hash') || null;
+  const targetHash = core.getInput("target-hash") || null;
   validateTargetHash(targetHash);
-  const artifactName = core.getInput('artifact-name') || ARTIFACT_NAME;
-  const branch = core.getInput('branch') || 'reg_actions';
-  const customReportPage = core.getInput('custom-report-page') || null;
+  const artifactName = core.getInput("artifact-name") || ARTIFACT_NAME;
+  const branch = core.getInput("branch") || "reg_actions";
+  const customReportPage = core.getInput("custom-report-page") || null;
   validateCustomReportPage(customReportPage);
-  let reportFilePath = core.getInput('report-file-path');
+  let reportFilePath = core.getInput("report-file-path");
   if (!reportFilePath) {
-    reportFilePath = './report.html';
+    reportFilePath = "./report.html";
   }
   try {
     if (statSync(reportFilePath).isDirectory()) {
-      reportFilePath = join(reportFilePath, './report.html');
+      reportFilePath = join(reportFilePath, "./report.html");
     }
   } catch {}
   validateReportFilePath(reportFilePath);
-  const commentReportFormat = core.getInput('comment-report-format') || 'raw';
+  const commentReportFormat = core.getInput("comment-report-format") || "raw";
   validateCommentReportFormat(commentReportFormat);
-  const outdatedCommentAction = core.getInput('outdated-comment-action') || 'none';
+  const outdatedCommentAction =
+    core.getInput("outdated-comment-action") || "none";
   validateOutdatedCommentAction(outdatedCommentAction);
-  const commentMode = core.getInput('comment-mode') || 'always';
+  const commentMode = core.getInput("comment-mode") || "always";
   validateCommentMode(commentMode);
 
   return {
     githubToken,
     imageDirectoryPath,
-    enableAntialias: getBoolInput('enable-antialias'),
+    enableAntialias: getBoolInput("enable-antialias"),
     matchingThreshold,
     thresholdRate,
     thresholdPixel,
     targetHash,
     artifactName,
     branch,
-    disableBranch: getBoolInput('disable-branch'),
+    disableBranch: getBoolInput("disable-branch"),
     customReportPage,
     reportFilePath,
     commentReportFormat,

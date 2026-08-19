@@ -11,17 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy
     steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 9
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # version omitted: reads packageManager from package.json (pnpm@10.14.0)
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
 
       # Sakimori block-mode supervision around the build — same
       # policy as the CI workflows. The `git-publish-subdir-action`
       # below is a JavaScript action and runs in the runner agent,
       # outside the supervised tree.
       - name: pnpm i + package (sakimori block)
-        uses: bokuweb/sakimori@v0
+        uses: bokuweb/sakimori@8491d10e50cf65e438bedb87cd6f4e496140ac29 # v0.34.4
         with:
           policy: .github/sakimori.yml
           mode: block
@@ -32,7 +31,9 @@ jobs:
             pnpm package
 
       - name: deploy
-        uses: s0/git-publish-subdir-action@develop
+        # Latest tag v2.6.0 still runs node16 (removed on GH runners).
+        # develop SHA is 11 commits ahead and bumps the action to node20.
+        uses: s0/git-publish-subdir-action@ac113f6bfe8896e85a373534242c949a7ea74c98 # develop
         env:
           REPO: self
           BRANCH: v3

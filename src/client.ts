@@ -1,10 +1,9 @@
-import * as github from '@actions/github';
-import { DefaultArtifactClient } from '@actions/artifact';
-import { backOff } from 'exponential-backoff';
-import { summary } from '@actions/core';
-
-import { Repository } from './repository';
-import { workspace } from './path';
+import { DefaultArtifactClient } from "@actions/artifact";
+import { summary } from "@actions/core";
+import type * as github from "@actions/github";
+import { backOff } from "exponential-backoff";
+import { workspace } from "./path";
+import type { Repository } from "./repository";
 
 export type Octokit = ReturnType<typeof github.getOctokit>;
 
@@ -25,12 +24,18 @@ export const createClient = (repository: Repository, octokit: Octokit) => {
     },
     fetchArtifacts: async (runId: number) => {
       const input = { ...repository, run_id: runId, per_page: 50 };
-      return backOff(() => octokit.rest.actions.listWorkflowRunArtifacts(input), { numOfAttempts: 5 });
+      return backOff(
+        () => octokit.rest.actions.listWorkflowRunArtifacts(input),
+        { numOfAttempts: 5 },
+      );
     },
     uploadArtifact: async (files: string[], artifactName: string) => {
-      const res = await backOff(() => artifactClient.uploadArtifact(artifactName, files, workspace()), {
-        numOfAttempts: 5,
-      });
+      const res = await backOff(
+        () => artifactClient.uploadArtifact(artifactName, files, workspace()),
+        {
+          numOfAttempts: 5,
+        },
+      );
       return res;
     },
     downloadArtifact: async (artifactId: number) => {
@@ -39,12 +44,16 @@ export const createClient = (repository: Repository, octokit: Octokit) => {
           octokit.rest.actions.downloadArtifact({
             ...repository,
             artifact_id: artifactId,
-            archive_format: 'zip',
+            archive_format: "zip",
           }),
         { numOfAttempts: 5 },
       );
     },
-    listComments: async (issueNumber: number): Promise<{ id: number; node_id: string; body?: string | undefined }[]> => {
+    listComments: async (
+      issueNumber: number,
+    ): Promise<
+      { id: number; node_id: string; body?: string | undefined }[]
+    > => {
       return backOff(
         () =>
           octokit.paginate(
@@ -54,14 +63,19 @@ export const createClient = (repository: Repository, octokit: Octokit) => {
               issue_number: issueNumber,
               per_page: 100,
             },
-            r => r.data,
+            (r) => r.data,
           ),
         { numOfAttempts: 5 },
       );
     },
     updateComment: async (commentId: number, body: string) => {
       await backOff(
-        () => octokit.rest.issues.updateComment({ ...repository, comment_id: commentId, body }),
+        () =>
+          octokit.rest.issues.updateComment({
+            ...repository,
+            comment_id: commentId,
+            body,
+          }),
         { numOfAttempts: 5 },
       );
     },
@@ -81,7 +95,7 @@ mutation($input: MinimizeCommentInput!) {
             {
               input: {
                 subjectId: nodeId,
-                classifier: 'OUTDATED',
+                classifier: "OUTDATED",
               },
             },
           ),
@@ -91,7 +105,12 @@ mutation($input: MinimizeCommentInput!) {
     },
     postComment: async (issueNumber: number, comment: string) => {
       const _ = await backOff(
-        () => octokit.rest.issues.createComment({ ...repository, issue_number: issueNumber, body: comment }),
+        () =>
+          octokit.rest.issues.createComment({
+            ...repository,
+            issue_number: issueNumber,
+            body: comment,
+          }),
         { numOfAttempts: 5 },
       );
       return;

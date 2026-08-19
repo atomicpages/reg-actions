@@ -1,28 +1,37 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import cpy from 'cpy';
-import { sync as globSync } from 'glob';
-import makeDir from 'make-dir';
-import Zip from 'adm-zip';
-
-import { log } from './logger';
-import { Config } from './config';
-import { Event } from './event';
-import { findRunAndArtifact, RunClient } from './run';
-import { compare, CompareOutput } from './compare';
-import { createCommentWithTarget, createCommentWithoutTarget, createResolvedComment, isRegActionComment } from './comment';
-import * as constants from './constants';
-import { workspace } from './path';
-import { pushImages } from './push';
-import { targetDir } from './helper';
+import * as fs from "node:fs";
+import * as path from "node:path";
+import Zip from "adm-zip";
+import cpy from "cpy";
+import { sync as globSync } from "glob";
+import { mkdirp as makeDir } from "mkdirp";
+import {
+  createCommentWithoutTarget,
+  createCommentWithTarget,
+  createResolvedComment,
+  isRegActionComment,
+} from "./comment";
+import { type CompareOutput, compare } from "./compare";
+import type { Config } from "./config";
+import * as constants from "./constants";
+import type { Event } from "./event";
+import { targetDir } from "./helper";
+import { log } from "./logger";
+import { workspace } from "./path";
+import { pushImages } from "./push";
+import { findRunAndArtifact, type RunClient } from "./run";
 
 type DownloadClient = {
   downloadArtifact: (id: number) => Promise<{ data: unknown }>;
 };
 
 // Download expected images from target artifact.
-const downloadExpectedImages = async (client: DownloadClient, latestArtifactId: number) => {
-  log.info(`Start to download expected images, artifact id = ${latestArtifactId}`);
+const downloadExpectedImages = async (
+  client: DownloadClient,
+  latestArtifactId: number,
+) => {
+  log.info(
+    `Start to download expected images, artifact id = ${latestArtifactId}`,
+  );
   try {
     const zip = await client.downloadArtifact(latestArtifactId);
     const buf = Buffer.from(zip.data as any);
@@ -30,17 +39,29 @@ const downloadExpectedImages = async (client: DownloadClient, latestArtifactId: 
     const entries = new Zip(buf).getEntries();
     log.info(`entry size = ${entries.length}`);
     for (const entry of entries) {
-      if (entry.isDirectory || !entry.entryName.startsWith(constants.ACTUAL_DIR_NAME)) continue;
+      if (
+        entry.isDirectory ||
+        !entry.entryName.startsWith(constants.ACTUAL_DIR_NAME)
+      )
+        continue;
       // https://github.com/reg-viz/reg-actions/security/code-scanning/2
-      if (entry.entryName.includes('..')) continue;
-      const f = path.join(workspace(), entry.entryName.replace(constants.ACTUAL_DIR_NAME, constants.EXPECTED_DIR_NAME));
+      if (entry.entryName.includes("..")) continue;
+      const f = path.join(
+        workspace(),
+        entry.entryName.replace(
+          constants.ACTUAL_DIR_NAME,
+          constants.EXPECTED_DIR_NAME,
+        ),
+      );
       await makeDir(path.dirname(f));
-      log.info('download to', f);
+      log.info("download to", f);
       await fs.promises.writeFile(f, entry.getData());
     }
   } catch (e: any) {
-    if (e.message === 'Artifact has expired') {
-      log.error('Failed to download expected images. Because expected artifact has already expired.');
+    if (e.message === "Artifact has expired") {
+      log.error(
+        "Failed to download expected images. Because expected artifact has already expired.",
+      );
       return;
     }
     log.error(`Failed to download artifact ${e}`);
@@ -61,31 +82,40 @@ const copyActualImages = async (imagePath: string) => {
 };
 
 type UploadClient = {
-  uploadArtifact: (files: string[], artifactName: string) => Promise<{ id?: number }>;
+  uploadArtifact: (
+    files: string[],
+    artifactName: string,
+  ) => Promise<{ id?: number }>;
 };
 
 // Compare images and upload result.
-const compareAndUpload = async (client: UploadClient, config: Config): Promise<CompareOutput & { id?: number }> => {
+const compareAndUpload = async (
+  client: UploadClient,
+  config: Config,
+): Promise<CompareOutput & { id?: number }> => {
   const result = await compare(config);
-  log.info('compare result', result);
+  log.info("compare result", result);
 
-  const files = globSync(path.join(workspace(), '**/*'));
+  const files = globSync(path.join(workspace(), "**/*"));
 
-  log.info('Start upload artifact');
+  log.info("Start upload artifact");
 
   try {
     const res = await client.uploadArtifact(files, config.artifactName);
-    log.info('Succeeded to upload artifact');
+    log.info("Succeeded to upload artifact");
 
     return { id: res.id, ...result };
   } catch (e) {
     log.error(e);
-    throw new Error('Failed to upload artifact');
+    throw new Error("Failed to upload artifact");
   }
 };
 
 const init = async (config: Config) => {
-  log.info(`start initialization with config.`, config);
+  log.info(`start initialization with config.`, {
+    ...config,
+    githubToken: "***",
+  });
 
   // Cleanup workspace
   await fs.promises.rm(workspace(), {
@@ -109,14 +139,23 @@ const init = async (config: Config) => {
 type CommentClient = {
   postComment: (issueNumber: number, comment: string) => Promise<void>;
   updateComment: (commentId: number, body: string) => Promise<void>;
-  listComments: (issueNumber: number) => Promise<{ id: number; node_id: string; body?: string | undefined }[]>;
+  listComments: (
+    issueNumber: number,
+  ) => Promise<{ id: number; node_id: string; body?: string | undefined }[]>;
   minimizeOutdatedComment: (nodeId: string) => Promise<void>;
 };
 
-const minimizePreviousComments = async (client: CommentClient, issueNumber: number, artifactName: string) => {
+const minimizePreviousComments = async (
+  client: CommentClient,
+  issueNumber: number,
+  artifactName: string,
+) => {
   const comments = await client.listComments(issueNumber);
   for (const comment of comments) {
-    if (comment.body && isRegActionComment({ artifactName, body: comment.body })) {
+    if (
+      comment.body &&
+      isRegActionComment({ artifactName, body: comment.body })
+    ) {
       await client.minimizeOutdatedComment(comment.node_id);
     }
   }
@@ -129,7 +168,10 @@ const findExistingComment = async (
 ): Promise<{ id: number; node_id: string } | null> => {
   const comments = await client.listComments(issueNumber);
   for (const comment of comments) {
-    if (comment.body && isRegActionComment({ artifactName, body: comment.body })) {
+    if (
+      comment.body &&
+      isRegActionComment({ artifactName, body: comment.body })
+    ) {
       return { id: comment.id, node_id: comment.node_id };
     }
   }
@@ -137,14 +179,22 @@ const findExistingComment = async (
 };
 
 const hasChanges = (result: CompareOutput): boolean => {
-  return result.deletedItems.length > 0 || result.failedItems.length > 0 || result.newItems.length > 0;
+  return (
+    result.deletedItems.length > 0 ||
+    result.failedItems.length > 0 ||
+    result.newItems.length > 0
+  );
 };
 
 type SummaryClient = {
   summary: (raw: string) => Promise<void>;
 };
 
-type Client = CommentClient & DownloadClient & UploadClient & RunClient & SummaryClient;
+type Client = CommentClient &
+  DownloadClient &
+  UploadClient &
+  RunClient &
+  SummaryClient;
 
 export const run = async ({
   event,
@@ -160,16 +210,15 @@ export const run = async ({
   client: Client;
   date: string;
   config: Config;
-}) => {
+}): Promise<CompareOutput & { id?: number }> => {
   // Setup directory for artifact and copy images.
   await init(config);
 
   // If event is not pull request, upload images then finish actions.
   // This data is used as expected data for the next time.
-  if (typeof event.number === 'undefined') {
+  if (typeof event.number === "undefined") {
     log.info(`event number is not detected.`);
-    await compareAndUpload(client, config);
-    return;
+    return compareAndUpload(client, config);
   }
 
   log.info(`start to find run and artifact.`);
@@ -182,8 +231,8 @@ export const run = async ({
   });
 
   // If target artifact is not found, upload images.
-  if (!runAndArtifact || !runAndArtifact.run || !runAndArtifact.artifact) {
-    log.warn('Failed to find current or target runs');
+  if (!runAndArtifact?.run || !runAndArtifact.artifact) {
+    log.warn("Failed to find current or target runs");
     const result = await compareAndUpload(client, config);
 
     // If we have current run, add comment to PR.
@@ -197,37 +246,51 @@ export const run = async ({
       });
 
       try {
-        if (config.outdatedCommentAction === 'minimize') {
-          await minimizePreviousComments(client, event.number, config.artifactName);
+        if (config.outdatedCommentAction === "minimize") {
+          await minimizePreviousComments(
+            client,
+            event.number,
+            config.artifactName,
+          );
         }
         await client.postComment(event.number, comment);
       } catch (e) {
         log.warn(`Failed to postComment, reason ${e}`);
       }
     }
-    return;
+    return result;
   }
 
   const { run: targetRun, artifact } = runAndArtifact;
 
-  log.info(`targetRun id is ${targetRun.id} workflow id = ${targetRun.workflow_id}`);
+  log.info(
+    `targetRun id is ${targetRun.id} workflow id = ${targetRun.workflow_id}`,
+  );
 
   // Download and copy expected images to workspace.
   await downloadExpectedImages(client, artifact.id);
 
   const result = await compareAndUpload(client, config);
 
-  log.info('Result', result);
+  log.info("Result", result);
 
   // If changed, upload images to specified branch.
   if (!config.disableBranch) {
-    if (result.deletedItems.length !== 0 || result.failedItems.length !== 0 || result.newItems.length !== 0) {
+    if (
+      result.deletedItems.length !== 0 ||
+      result.failedItems.length !== 0 ||
+      result.newItems.length !== 0
+    ) {
       await pushImages({
         githubToken: config.githubToken,
         runId,
         result,
         branch: config.branch,
-        targetDir: targetDir({ runId, artifactName: config.artifactName, date }),
+        targetDir: targetDir({
+          runId,
+          artifactName: config.artifactName,
+          date,
+        }),
         env: process.env,
         // commitName: undefined,
         // commitEmail: undefined,
@@ -252,48 +315,65 @@ export const run = async ({
   });
 
   const shouldPostNewComment =
-    config.commentMode === 'always' || (config.commentMode === 'changes' && hasChanges(result));
+    config.commentMode === "always" ||
+    (config.commentMode === "changes" && hasChanges(result));
 
   try {
-    if (config.outdatedCommentAction === 'update') {
-      const existingComment = await findExistingComment(client, event.number, config.artifactName);
+    if (config.outdatedCommentAction === "update") {
+      const existingComment = await findExistingComment(
+        client,
+        event.number,
+        config.artifactName,
+      );
 
       if (hasChanges(result)) {
         if (existingComment) {
-          log.info('Updating existing comment with changes');
+          log.info("Updating existing comment with changes");
           await client.updateComment(existingComment.id, comment);
         } else if (shouldPostNewComment) {
-          log.info('Creating new comment with changes');
+          log.info("Creating new comment with changes");
           await client.postComment(event.number, comment);
         } else {
-          log.info(`Skipping new comment (comment-mode: ${config.commentMode})`);
+          log.info(
+            `Skipping new comment (comment-mode: ${config.commentMode})`,
+          );
         }
         await client.summary(comment);
       } else if (existingComment) {
-        log.info('Updating existing comment to show resolved');
-        const resolvedComment = createResolvedComment({ artifactName: config.artifactName });
+        log.info("Updating existing comment to show resolved");
+        const resolvedComment = createResolvedComment({
+          artifactName: config.artifactName,
+        });
         await client.updateComment(existingComment.id, resolvedComment);
         await client.summary(resolvedComment);
       } else {
-        log.info('No changes and no existing comment, skipping');
+        log.info("No changes and no existing comment, skipping");
         if (shouldPostNewComment) {
           await client.postComment(event.number, comment);
           await client.summary(comment);
         }
       }
     } else if (shouldPostNewComment) {
-      if (config.outdatedCommentAction === 'minimize') {
-        await minimizePreviousComments(client, event.number, config.artifactName);
+      if (config.outdatedCommentAction === "minimize") {
+        await minimizePreviousComments(
+          client,
+          event.number,
+          config.artifactName,
+        );
       }
       await client.postComment(event.number, comment);
 
-      log.info('post summary comment');
+      log.info("post summary comment");
 
       await client.summary(comment);
     } else {
-      log.info(`Skipping comment (comment-mode: ${config.commentMode}, has changes: ${hasChanges(result)})`);
+      log.info(
+        `Skipping comment (comment-mode: ${config.commentMode}, has changes: ${hasChanges(result)})`,
+      );
     }
   } catch (e) {
     log.error(e);
   }
+
+  return result;
 };

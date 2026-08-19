@@ -1,11 +1,9 @@
-import * as l from 'loglevel';
+import logger from "loglevel";
 
-if (process.env.NODE_ENV === 'debug') {
-  l.setLevel('debug');
+if (process.env.NODE_ENV === "debug") {
+  logger.setLevel("debug");
 } else {
-  l.setLevel('info');
+  logger.setLevel("info");
 }
 
-export const log = {
-  ...l,
-};
+export const log = logger;

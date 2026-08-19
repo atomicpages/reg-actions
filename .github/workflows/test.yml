@@ -18,17 +18,16 @@ jobs:
       # `bokuweb/sakimori@v0` with `run:`, which only supervised the
       # wrapped command and explicitly left `./dist` outside the
       # supervised tree.
-      - uses: bokuweb/sakimori/job@v0
+      - uses: bokuweb/sakimori/job@8491d10e50cf65e438bedb87cd6f4e496140ac29 # v0.34.4
         with:
           policy: .github/sakimori.yml
           mode: block
           log: sakimori.log.json
           html: sakimori-report.html
 
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 9
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # version omitted: reads packageManager from package.json (pnpm@10.14.0)
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
 
       - name: pnpm i + package
         run: |
@@ -47,9 +46,9 @@ jobs:
       # post-hook would otherwise write them at end-of-job, too late
       # for an in-job upload.
       - if: always()
-        uses: bokuweb/sakimori/job/stop@v0
+        uses: bokuweb/sakimori/job/stop@8491d10e50cf65e438bedb87cd6f4e496140ac29 # v0.34.4
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: sakimori-report
@@ -58,7 +57,7 @@ jobs:
             sakimori.log.json
           if-no-files-found: ignore
 
-      - uses: bokuweb/sakimori/comment@v0
+      - uses: bokuweb/sakimori/comment@8491d10e50cf65e438bedb87cd6f4e496140ac29 # v0.34.4
         if: github.event_name == 'pull_request'
         with:
           log: sakimori.log.json
