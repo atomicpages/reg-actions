@@ -1,0 +1,73 @@
+# Changelog
+
+## [4.0.0](https://github.com/atomicpages/reg-actions/compare/v3.0.0...v4.0.0) (2026-08-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* prepare v4 action releases ([#1](https://github.com/atomicpages/reg-actions/issues/1))
+
+### Features
+
+* add 'update' option to outdated-comment-action (sticky comment) ([#198](https://github.com/atomicpages/reg-actions/issues/198)) ([3f3c43a](https://github.com/atomicpages/reg-actions/commit/3f3c43a8470b0827e0086b034bb5e895ed165ea3))
+* add artifact name ([#87](https://github.com/atomicpages/reg-actions/issues/87)) ([6f7e1ee](https://github.com/atomicpages/reg-actions/commit/6f7e1ee3a4b3c94416f4d30e5fe58f5d31ced33e))
+* add cleanup workspace directory ([#124](https://github.com/atomicpages/reg-actions/issues/124)) ([274a9e9](https://github.com/atomicpages/reg-actions/commit/274a9e9ba0615348be02ad0388f6f58d9c96b648))
+* add comment-mode option to control PR comments ([#199](https://github.com/atomicpages/reg-actions/issues/199)) ([3a9cac6](https://github.com/atomicpages/reg-actions/commit/3a9cac6b2d26db8a1aef92587de45664481dc7d6))
+* add limit ([28a92d1](https://github.com/atomicpages/reg-actions/commit/28a92d11f9fc6bccff8aa16caca58507ba6123af))
+* add limit ([a4b1df0](https://github.com/atomicpages/reg-actions/commit/a4b1df079430c183279c1e6fe01cfb7d3d2b2f6b))
+* add link for artifact ([#133](https://github.com/atomicpages/reg-actions/issues/133)) ([4fea723](https://github.com/atomicpages/reg-actions/commit/4fea723ee14dbe2f19c588875d9b44476986f94d))
+* Add some options ([#32](https://github.com/atomicpages/reg-actions/issues/32)) ([3fe9ca7](https://github.com/atomicpages/reg-actions/commit/3fe9ca772f5031d6a622737d291acd33f2f28d50))
+* allow specifying expected images directory ([#148](https://github.com/atomicpages/reg-actions/issues/148)) ([37f4dd9](https://github.com/atomicpages/reg-actions/commit/37f4dd9dc57da12031184d8a3b41dadc2caf2bec))
+* bump deps, fix security posture, and update action to node24 ([0db23e6](https://github.com/atomicpages/reg-actions/commit/0db23e6a79bd1628d4e9164e04b563372bc8196d))
+* comment-report-format option allow to summarize changed file comment format ([#107](https://github.com/atomicpages/reg-actions/issues/107)) ([8d03dcc](https://github.com/atomicpages/reg-actions/commit/8d03dcc8c7393facfc4bbb3e236d6a6d31222750))
+* Impl target hash option ([#48](https://github.com/atomicpages/reg-actions/issues/48)) ([5e629d9](https://github.com/atomicpages/reg-actions/commit/5e629d9fbe3737b795a993ad26dbf981d3fc3baf))
+* options for custom report deployment ([#61](https://github.com/atomicpages/reg-actions/issues/61)) ([4f41fef](https://github.com/atomicpages/reg-actions/commit/4f41fef7c356b93f9b8079ce11e602c69d8c9bfb))
+* options for custom report deployment ([#61](https://github.com/atomicpages/reg-actions/issues/61)) ([ea9a543](https://github.com/atomicpages/reg-actions/commit/ea9a54388dcd052e3164d73e7c39f0fc228452b3))
+* outdated comment action option to minimize previous reg-action comments ([#138](https://github.com/atomicpages/reg-actions/issues/138)) ([62a33a9](https://github.com/atomicpages/reg-actions/commit/62a33a9610741b6dbe3469f96f80ca724e15905b))
+* prepare v4 action releases ([#1](https://github.com/atomicpages/reg-actions/issues/1)) ([44082f4](https://github.com/atomicpages/reg-actions/commit/44082f46673440873c1235b760bc926371db1f72))
+* Support retention days ([#139](https://github.com/atomicpages/reg-actions/issues/139)) ([1dda79c](https://github.com/atomicpages/reg-actions/commit/1dda79c49f88547cfe7b696ccd0b2030bd2b29e4))
+* support webp ([#167](https://github.com/atomicpages/reg-actions/issues/167)) ([2f5b3a6](https://github.com/atomicpages/reg-actions/commit/2f5b3a64c95983036c20e1ac1df69d0d4abfe4dc))
+* try wasm ([#158](https://github.com/atomicpages/reg-actions/issues/158)) ([7831406](https://github.com/atomicpages/reg-actions/commit/7831406dd7cb4170e3a282d04e5af69be48feed0))
+
+
+### Bug Fixes
+
+* fix:  ([685af30](https://github.com/atomicpages/reg-actions/commit/685af30c7c7f18305991f6aa7d7885cdf6b99175))
+* fix:  ([b1ff4ac](https://github.com/atomicpages/reg-actions/commit/b1ff4ac80ce3bcad1f4f92af35bce6240c84e9a3))
+* [#118](https://github.com/atomicpages/reg-actions/issues/118) ([#122](https://github.com/atomicpages/reg-actions/issues/122)) ([2d40618](https://github.com/atomicpages/reg-actions/commit/2d406181657ac8257f8a72bbacdf1c0a4be28e95))
+* `The disable-branch option is not working` ([#112](https://github.com/atomicpages/reg-actions/issues/112)) ([c2e769a](https://github.com/atomicpages/reg-actions/commit/c2e769a3485e53408499a31100f86b3acd5170bd))
+* 103 ([#104](https://github.com/atomicpages/reg-actions/issues/104)) ([b132106](https://github.com/atomicpages/reg-actions/commit/b13210649e80a30dfe70f0b9a5f33ece337aad19))
+* 118 ([#121](https://github.com/atomicpages/reg-actions/issues/121)) ([2946896](https://github.com/atomicpages/reg-actions/commit/294689664003ad29b04b21edbe75500684a2e10c))
+* add logs ([#64](https://github.com/atomicpages/reg-actions/issues/64)) ([92c087f](https://github.com/atomicpages/reg-actions/commit/92c087f97b498b55cad4dd40b7687831caee2556))
+* add logs ([#65](https://github.com/atomicpages/reg-actions/issues/65)) ([b22fced](https://github.com/atomicpages/reg-actions/commit/b22fced742ed0535cb1222fb139c8617c5950176))
+* add report ([382b94f](https://github.com/atomicpages/reg-actions/commit/382b94fc813a3e9aff77eb3423d9e3628f0c96b9))
+* comment ([#105](https://github.com/atomicpages/reg-actions/issues/105)) ([f208879](https://github.com/atomicpages/reg-actions/commit/f208879ca3d336621d11411975354014aa143edc))
+* copy dest ([#175](https://github.com/atomicpages/reg-actions/issues/175)) ([b53956c](https://github.com/atomicpages/reg-actions/commit/b53956cbcbca68e612cbae2f51e5c481dcf64857))
+* deps ([#38](https://github.com/atomicpages/reg-actions/issues/38)) ([d1e3115](https://github.com/atomicpages/reg-actions/commit/d1e3115186ce5fe372ec34e834a627bb3cb8fa80))
+* Drop html and rename json in output ([#2](https://github.com/atomicpages/reg-actions/issues/2)) ([d4a246e](https://github.com/atomicpages/reg-actions/commit/d4a246e5a63eaebf445f86cfd7553e77ba836a78))
+* expected dir ([#28](https://github.com/atomicpages/reg-actions/issues/28)) ([a2170dc](https://github.com/atomicpages/reg-actions/commit/a2170dc9115b3202f004a9dcb57af1a64774e6fb))
+* fix report path ([#172](https://github.com/atomicpages/reg-actions/issues/172)) ([dbf5854](https://github.com/atomicpages/reg-actions/commit/dbf5854d5723835c5439b1674223c311c1352df0))
+* fix report path ([#172](https://github.com/atomicpages/reg-actions/issues/172)) ([#173](https://github.com/atomicpages/reg-actions/issues/173)) ([558be10](https://github.com/atomicpages/reg-actions/commit/558be1060d802ae50f15c71f4ded45ceb878a0ae))
+* handle comment limitation and error ([#169](https://github.com/atomicpages/reg-actions/issues/169)) ([4d525ae](https://github.com/atomicpages/reg-actions/commit/4d525ae4635468ff56a8006162e0a4e63e70982d))
+* handle comment size limitation ([#126](https://github.com/atomicpages/reg-actions/issues/126)) ([d842f5a](https://github.com/atomicpages/reg-actions/commit/d842f5a0d32eb82bacb966298c3f6aa7ea3b808d))
+* lockfile ([9bb8568](https://github.com/atomicpages/reg-actions/commit/9bb85689263d0b9ef01b8c8f7df49c3ba42b1d25))
+* num ([#81](https://github.com/atomicpages/reg-actions/issues/81)) ([1d04cf4](https://github.com/atomicpages/reg-actions/commit/1d04cf4282c8e75b03a62c5bd167a793c9bf8ce0))
+* path ([#186](https://github.com/atomicpages/reg-actions/issues/186)) ([c1bbc06](https://github.com/atomicpages/reg-actions/commit/c1bbc06733e3cca5f665ac414907a9dfde58c3a9))
+* per page num ([1998c7f](https://github.com/atomicpages/reg-actions/commit/1998c7ff1da3e370e257dde84b5e4347d310162a))
+* per page num ([7671d4c](https://github.com/atomicpages/reg-actions/commit/7671d4c080b1e6b6509647bd6c491303209f584d))
+* replace client ([#145](https://github.com/atomicpages/reg-actions/issues/145)) ([60a8105](https://github.com/atomicpages/reg-actions/commit/60a810560c2ce61e7cf36d505cd50e3da3638f4d))
+* report generation ([#113](https://github.com/atomicpages/reg-actions/issues/113)) ([13a0f25](https://github.com/atomicpages/reg-actions/commit/13a0f25935905f34b71147172f82b4f18c01b7b6))
+* retry ([6dcc27f](https://github.com/atomicpages/reg-actions/commit/6dcc27f56acd5b45e14498381d595e408821f631))
+* run id ([#51](https://github.com/atomicpages/reg-actions/issues/51)) ([128b027](https://github.com/atomicpages/reg-actions/commit/128b027d85c37eec38229f1abc41ee1ab184ffcc))
+* set concurrency ([#170](https://github.com/atomicpages/reg-actions/issues/170)) ([8a1a490](https://github.com/atomicpages/reg-actions/commit/8a1a49064819ec37e6cbc673ecc25361a5870c85))
+* Skip download iamges when artifact not found to avoid error ([#24](https://github.com/atomicpages/reg-actions/issues/24)) ([7f23eb6](https://github.com/atomicpages/reg-actions/commit/7f23eb6ef83c8bcf55220b5c23f4f552975d9941))
+* threshold-pixel param default overrides threshold-rate ([#147](https://github.com/atomicpages/reg-actions/issues/147)) ([a3de932](https://github.com/atomicpages/reg-actions/commit/a3de932e45c2e8ef98c5fa4191c6e92213899a7c))
+* update ([94535da](https://github.com/atomicpages/reg-actions/commit/94535da32064da7e386fb7bfb9404bed7c22683f))
+* update ([3903cf2](https://github.com/atomicpages/reg-actions/commit/3903cf2b81752447cc453c54556de276d2274ab0))
+* update ([#176](https://github.com/atomicpages/reg-actions/issues/176)) ([e41cfec](https://github.com/atomicpages/reg-actions/commit/e41cfec419c5142d52c15917f49cd6d54c485771))
+* update ([#184](https://github.com/atomicpages/reg-actions/issues/184)) ([3af311c](https://github.com/atomicpages/reg-actions/commit/3af311ce47af35aa2a95eb5d0cc425c7b0b7f261))
+* update existing comment to resolved with comment-mode: changes ([#200](https://github.com/atomicpages/reg-actions/issues/200)) ([c1fdccd](https://github.com/atomicpages/reg-actions/commit/c1fdccd31dc164945fe4b365b940a01e5c2a4f83))
+* use artifact client for download ([#135](https://github.com/atomicpages/reg-actions/issues/135)) ([19d3918](https://github.com/atomicpages/reg-actions/commit/19d391836e55549dc6517cfd50788f3142b1df66))
+* use experimental6 ([#185](https://github.com/atomicpages/reg-actions/issues/185)) ([bceabea](https://github.com/atomicpages/reg-actions/commit/bceabeaa989fe4f6c8d8ab261d5fb44dce89678f))
+* use for ([#143](https://github.com/atomicpages/reg-actions/issues/143)) ([3dd0148](https://github.com/atomicpages/reg-actions/commit/3dd0148d58b6dd172edd5e7a5a42f662f4414f64))
+* use script ([#49](https://github.com/atomicpages/reg-actions/issues/49)) ([35a1cb3](https://github.com/atomicpages/reg-actions/commit/35a1cb3695747a8caf74e00018592347d8615792))
